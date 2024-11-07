@@ -1,5 +1,3 @@
-
-import './App.css'
 import { useState, useEffect } from 'react'
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import axios from 'axios';

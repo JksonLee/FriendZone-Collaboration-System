@@ -12,12 +12,16 @@
   "dependencies": {
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
+    "@fontsource/roboto": "^5.1.0",
     "@microsoft/signalr": "^8.0.7",
     "@mui/icons-material": "^6.1.5",
     "@mui/material": "^6.1.5",
     "axios": "^1.7.7",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.53.1",
+    "react-router-dom": "^6.28.0",
+    "react-scroll-motion": "^0.3.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
