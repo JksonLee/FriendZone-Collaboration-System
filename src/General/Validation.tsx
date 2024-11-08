@@ -1,19 +1,36 @@
-import { useState } from "react";
-
+//Login Checking
 export const checkAuthorized = (dataList: any, userInputData: any) => {
-    const [result, setResult] = useState<string>(""); // error must inside a function
-    
+    let result: string = "Unauthorized";
+    let userID: number = 0;
+
     dataList.forEach((element: any) => {
         //Filter By Email
-        if (element.email === userInputData.userEmail) {
+        if (element.email === userInputData.email) {
             //Check Password
-            if (element.password === userInputData.userPassword) {
-                return "Authorized";
+            if (element.password === userInputData.password) {
+                result = "Authorized";
+                userID = element.userID;
             } else {
-                return "Password Incorrect";
+                result = "Password Incorrect";
             }
         }
     });
 
-    return "hi";
+    return { result, userID };
 }
+
+
+//Register Checking
+export const checkEmailExist = (dataList: any, userInputData: any) => {
+    let result: string = "Not Existing";
+
+    dataList.forEach((element: any) => {
+        //Filter By Email
+        if (element.email === userInputData.email) {
+            result = "Existing";
+        }
+    });
+
+    return result;
+}
+
