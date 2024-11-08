@@ -41,7 +41,7 @@ const Register: React.FC = () => {
 
                         {/* Password Field */}
                         <Grid size={12}>
-                            <Controller name="password" control={control} rules={{ required: 'Password is required' }}
+                            <Controller name="password" control={control} rules={{ required: 'Password is required', pattern: { value: /^[a-zA-Z0-9_!@]{8,}$/, message: 'Password Must Be 8 Digits above and only accept alphabet, number, underscroll, ! and @' }}}
                                 render={({ field }) => (
                                     <TextField {...field} label="Password" type="password" fullWidth variant="outlined" error={!!errors.password} helperText={errors.password?.message} />)} />
                         </Grid>
@@ -55,7 +55,7 @@ const Register: React.FC = () => {
 
                         {/* Secret Code Field */}
                         <Grid size={12}>
-                            <Controller name="secretCode" control={control} rules={{ required: 'Secret Code is required' }}
+                            <Controller name="secretCode" control={control} rules={{ required: 'Secret Code is required', pattern: { value: /^[0-9]{6}$/, message: 'Password Must Be 6 Digits and only accept number' }}}
                                 render={({ field }) => (
                                     <TextField {...field} label="Secret Code" fullWidth variant="outlined" error={!!errors.secretCode} helperText={errors.secretCode?.message} />)} />
                         </Grid>

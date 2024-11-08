@@ -1,8 +1,7 @@
 const componentNames = {
-    Header: 'Header',
-    Footer: 'Footer',
-    Sidebar: 'Sidebar',
-    MainContent: 'MainContent',
+    ButtonColor: 'rgba(105,105,105, 0.5)',
+    BoxRadius: '35px',
+    BoxBackgroundColor: 'rgba(245, 245, 245, 0.7)',
   };
   
   export default componentNames;
