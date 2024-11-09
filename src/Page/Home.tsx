@@ -1,8 +1,16 @@
-import { useLocation } from 'react-router-dom';
+import '../CSS/Home.css'
+import componentNames from '../General/Component';
+import { useState } from 'react';
+import { Box, Button, CircularProgress, Paper, TextField, Typography } from '@mui/material';
+import Grid from '@mui/material/Grid2';
+import { useForm, Controller } from 'react-hook-form';
+import axios from 'axios';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 
 interface UserID {
   currentUserID: number;
   theme: string;
+  themeID: number;
 }
 
 const Home = () => {
@@ -10,16 +18,37 @@ const Home = () => {
   const location = useLocation();
   const state = location.state as UserID;
 
-  const style={
-    backgroundImage: `url('${state?.theme}')`,
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
-    backgroundSize: 'cover',
-  }
+  // Update the CSS variable dynamically
+  document.documentElement.style.setProperty('--backgroundImage', `url('${state.theme}')`);
 
-    return <div style={style}>
-      <h2>ID: {state?.currentUserID}</h2>
-      <h2>{state?.theme}</h2>
+  return <div >
+    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+
+      <Paper elevation={3} sx={{ padding: 3, width: 400, display: 'flex', flexDirection: 'column', alignItems: 'center', borderRadius: componentNames.BoxRadius, backgroundColor: componentNames.BoxBackgroundColor }}>
+
+        <Typography variant="h4" gutterBottom sx={{ marginBottom: '5%' }}>
+          <b>Login</b>
+        </Typography>
+
+        <Grid container spacing={2}>
+          <Grid size={12}>
+
+          </Grid>
+
+          <Grid size={12}>
+
+          </Grid>
+
+          <Grid size={12}>
+
+          </Grid>
+
+          <Grid size={12}>
+
+          </Grid>
+        </Grid>
+      </Paper>
+    </Box>
   </div>
 }
 

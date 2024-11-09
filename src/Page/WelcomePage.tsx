@@ -68,7 +68,7 @@ const WelcomePage = () => {
                     </h1>
                     <br /><br />
                     <h2 style={{ fontSize: 40, textAlign: 'center', marginTop: '-2%' }}>
-                        This is because platform are:
+                        Because this platform are:
                     </h2>
                     <h3 style={{ fontSize: 25, textAlign: 'center', marginTop: '2%' }}>
                         <b><i><p style={{ marginBottom: '-5%' }}>Security</p></i></b>
@@ -88,10 +88,10 @@ const WelcomePage = () => {
                         <Animator animation={MoveInOutFromBottom} style={{ marginBottom: 50 }}>
                             <h1>Are You Get Ready To Enjoy The System? Let Go ~</h1>
                         </Animator>
-                        <Animator animation={MoveInOutFromLeft} style={{ textAlign: 'center', marginBottom: 20, marginLeft: '3.5%' }}>
+                        <Animator animation={MoveInOutFromLeft} style={{ textAlign: 'center', marginBottom: 20, marginLeft: '1%' }}>
                             <Link to="/Login" style={{ color: 'whitesmoke' }}>Login</Link>
                         </Animator>
-                        <Animator animation={MoveInOutFromRight} style={{ textAlign: 'center', marginLeft: '-4%' }}>
+                        <Animator animation={MoveInOutFromRight} style={{ textAlign: 'center', marginLeft: '-3%' }}>
                             <Link to="/Register" style={{ color: 'whitesmoke' }}>Register</Link>
                         </Animator>
                     </h2>

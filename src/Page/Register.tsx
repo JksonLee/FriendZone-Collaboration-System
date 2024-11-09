@@ -1,4 +1,4 @@
-import { Button, TextField, Paper, Typography, Box, CircularProgress } from '@mui/material';
+import { Button, TextField, Paper, Typography, Box, CircularProgress, Stepper, Step, StepLabel } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
@@ -16,22 +16,37 @@ interface RegisterFormData {
     secretCode: number;
 }
 
-interface RegisterForm {
-    email: string;
-    password: string;
-    secretCode: number;
-}
-
 const Register: React.FC = () => {
     const { control, handleSubmit, formState: { errors }, getValues } = useForm<RegisterFormData>();
     const [loading, setLoading] = useState(false);
-    const nevigate = useNavigate()
+    const navigate = useNavigate()
 
-    const onSubmit = async (data: RegisterForm) => {
+    const steps = [
+        'Register An Account',
+        'Design Your Profile',
+    ];
+
+    function HorizontalLinearAlternativeLabelStepper() {
+        return (
+            <Box sx={{ width: '100%', backgroundColor: 'transparent' }}>
+                <Stepper alternativeLabel>
+                    {steps.map((label) => (
+                        <Step key={label}>
+                            <StepLabel><p style={{ color: 'white' }}>{label}</p></StepLabel>
+                        </Step>
+                    ))}
+                </Stepper>
+            </Box>
+        );
+    }
+
+
+    const onSubmit = async (data: RegisterFormData) => {
         setLoading(true);
         // Simulating an API call
         axios.get(`https://localhost:7121/api/User`).then((response) => {
-            let result: string = checkEmailExist(response.data, data);
+            const userData = {email: data.email, password: data.password, secretCode: data.secretCode}
+            let result: string = checkEmailExist(response.data, userData);
 
             //Decision Option
             if (result == "Not Existing") {
@@ -40,35 +55,7 @@ const Register: React.FC = () => {
                 }, 500);
 
                 const userInformation = { email: data.email, password: data.password, secretCode: data.secretCode };
-                nevigate('/RegisterProfile', { state: userInformation });
-
-                // axios.post(`https://localhost:7121/api/User`, data).then((response) => {
-                //     if (response.status === 200) {
-                //         //Alert
-                //         toast.success('Registration successful!', {
-                //             position: 'top-center', // Position of the toast
-                //             autoClose: 5000, // Toast will disappear after 5 seconds
-                //             hideProgressBar: true, // Hide the progress bar
-                //             style: {
-                //                 backgroundColor: componentNames.BoxBackgroundColor, // Green background for success
-                //                 color: componentNames.TextColor, // White text color
-                //                 borderRadius: '8px', // Rounded corners
-                //             },
-                //         });
-                //     } else {
-                //         //Alert
-                //         toast.error('Registration Fail!', {
-                //             position: 'top-center', // Position of the toast
-                //             autoClose: 5000, // Toast will disappear after 5 seconds
-                //             hideProgressBar: true, // Hide the progress bar
-                //             style: {
-                //                 backgroundColor: componentNames.BoxBackgroundColor, // Green background for success
-                //                 color: componentNames.TextColor, // White text color
-                //                 borderRadius: '8px', // Rounded corners
-                //             },
-                //         });
-                //     }
-                // });
+                navigate('/RegisterProfile', { state: userInformation });
 
             } else if (result == "Existing") {
                 setTimeout(() => {
@@ -76,7 +63,7 @@ const Register: React.FC = () => {
                 }, 500);
 
                 const errorMessage = { errorMessage: "The Email Already Been Registered, Please Try Agian", page: "Register" };
-                nevigate('/ErrorPage', { state: errorMessage });
+                navigate('/ErrorPage', { state: errorMessage });
 
             } else {
                 setTimeout(() => {
@@ -84,7 +71,7 @@ const Register: React.FC = () => {
                 }, 500);
 
                 const errorMessage = { errorMessage: "Something Is Wrong, Please Refresh The Page Again, Sorry~", page: "Welcome" };
-                nevigate('/ErrorPage', { state: errorMessage });
+                navigate('/ErrorPage', { state: errorMessage });
             }
         });
 
@@ -97,8 +84,12 @@ const Register: React.FC = () => {
     return (
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '97vh' }}>
             <Paper elevation={3} sx={{ padding: 3, width: 400, display: 'flex', flexDirection: 'column', alignItems: 'center', borderRadius: componentNames.BoxRadius, backgroundColor: componentNames.BoxBackgroundColor }}>
-                <Typography variant="h5" gutterBottom>
-                    Register
+                
+                {HorizontalLinearAlternativeLabelStepper()}
+                <hr style={{ border: '1px solid gray', width: '100%', marginBottom: '5%' }} />
+
+                <Typography variant="h4" gutterBottom>
+                    <b>Register</b>
                 </Typography>
 
                 <form onSubmit={handleSubmit(onSubmit)}>
@@ -128,7 +119,7 @@ const Register: React.FC = () => {
                         <Grid size={12}>
                             <Controller name="secretCode" control={control} rules={{ required: 'Secret Code is required', pattern: { value: /^[0-9]{6}$/, message: 'Password Must Be 6 Digits and only accept number' } }}
                                 render={({ field }) => (
-                                    <TextField {...field} label="Secret Code" fullWidth variant="outlined" error={!!errors.secretCode} helperText={errors.secretCode?.message} />)} />
+                                    <TextField {...field} label="Secret Code" inputProps={{ maxLength: 6 }} fullWidth variant="outlined" error={!!errors.secretCode} helperText={errors.secretCode?.message} />)} />
                         </Grid>
 
                         {/* Submit Button */}
@@ -139,7 +130,6 @@ const Register: React.FC = () => {
                         </Grid>
                     </Grid>
                 </form>
-                <ToastContainer />
             </Paper>
         </Box>
     );

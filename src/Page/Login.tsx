@@ -5,7 +5,7 @@ import { Box, Button, CircularProgress, Paper, TextField, Typography } from '@mu
 import Grid from '@mui/material/Grid2';
 import { useForm, Controller } from 'react-hook-form';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 
 //TypeScript
@@ -18,7 +18,7 @@ interface LoginFormData {
 const Login: React.FC = () => {
   const { control, handleSubmit, formState: { errors }, setValue } = useForm<LoginFormData>();
   const [loading, setLoading] = useState(false);
-  const nevigate = useNavigate()
+  const navigate = useNavigate()
 
 
   //Loading UI and API when click submit button
@@ -38,13 +38,11 @@ const Login: React.FC = () => {
         }, 500);
 
         axios.get(`https://localhost:7121/api/Profile/userID/` + userID).then((response) => {
-          let themeID = response.data.themeID;
 
-          axios.get(`https://localhost:7121/api/Theme/` + themeID).then((response) => {
-            let themeSource = response.data.source;
+          axios.get(`https://localhost:7121/api/Theme/` + response.data.themeID).then((response) => {
 
-            const userInform = { currentUserID: userID, theme: themeSource };
-            nevigate('/Home', { state: userInform });
+            const userInform = { currentUserID: userID, theme: response.data.source, themeID: response.data.themeID };
+            navigate('/Home', { state: userInform });
           });
         });
 
@@ -54,7 +52,7 @@ const Login: React.FC = () => {
         }, 500);
 
         const errorMessage = { errorMessage: "Your Password Is Incorrect, Please Try Again", page: "Login" };
-        nevigate('/ErrorPage', { state: errorMessage });
+        navigate('/ErrorPage', { state: errorMessage });
 
       } else if (result == "Unauthorized") {
         setTimeout(() => {
@@ -62,7 +60,7 @@ const Login: React.FC = () => {
         }, 500);
 
         const errorMessage = { errorMessage: "You Did Not Register Yet, Please Register First", page: "Register" };
-        nevigate('/ErrorPage', { state: errorMessage });
+        navigate('/ErrorPage', { state: errorMessage });
 
       } else {
         setTimeout(() => {
@@ -70,15 +68,9 @@ const Login: React.FC = () => {
         }, 500);
 
         const errorMessage = { errorMessage: "Something Is Wrong, Please Refresh The Page Again, Sorry~", page: "Welcome" };
-        nevigate('/ErrorPage', { state: errorMessage });
+        navigate('/ErrorPage', { state: errorMessage });
       }
     });
-
-    //Error Message
-    setTimeout(() => {
-      console.log("Internet Problem", data);
-      setLoading(false);
-    }, 1500);
   };
 
 
@@ -112,6 +104,10 @@ const Login: React.FC = () => {
               <Button type="submit" variant="contained" fullWidth disabled={loading} sx={{ padding: '10px', backgroundColor: componentNames.ButtonColor }} >
                 {loading ? <CircularProgress size={24} /> : 'Login'}
               </Button>
+            </Grid>
+
+            <Grid size={12}>
+              <Link to="/ForgetPassword" style={{ color: 'whitesmoke', display: 'flex', justifyContent: 'flex-end' }}>Forget Password?</Link>
             </Grid>
           </Grid>
         </form>

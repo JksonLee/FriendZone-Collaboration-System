@@ -34,3 +34,23 @@ export const checkEmailExist = (dataList: any, userInputData: any) => {
     return result;
 }
 
+
+//Register Checking
+export const changePasswordChecking = (dataList: any, userInputData: any) => {
+    let result: string = "Not Existing";
+    let userId: number = 0;
+
+    dataList.forEach((element: any) => {
+        //Filter By Email
+        if (element.email === userInputData.email) {
+            if (element.secretCode == userInputData.secretCode) {
+                result = "Validated";
+                userId = element.userID;
+            } else {
+                result = "Invalidated";
+            }
+        }
+    });
+
+    return { result, userId };
+}

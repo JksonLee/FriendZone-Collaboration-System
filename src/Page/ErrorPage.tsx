@@ -14,29 +14,20 @@ const ErrorPage = () => {
   const location = useLocation();
   const state = location.state as ErrorMessage;
   const [loading, setLoading] = useState(false);
-  const nevigate = useNavigate()
+  const navigate = useNavigate()
 
+  // Redirect Automatically
+  setTimeout(() => {
+    navigate(`/${state?.page}`);
+  }, 5000);
+
+  // Redirect Manually
   const onSubmit = async () => {
     setLoading(true);
-
-    if (state.page == "Login") {
       setTimeout(() => {
         setLoading(false);
       }, 500);
-      nevigate(`/${state?.page}`);
-
-    } else if (state.page == "Register") {
-      setTimeout(() => {
-        setLoading(false);
-      }, 500);
-      nevigate(`/${state?.page}`);
-
-    } else {
-      setTimeout(() => {
-        setLoading(false);
-      }, 500);
-      nevigate(`/${state?.page}`);
-    }
+      navigate(`/${state?.page}`);
   };
 
   return <div>
@@ -52,7 +43,7 @@ const ErrorPage = () => {
           <Grid container spacing={2}>
             <Grid size={12}>
               <Typography variant="h5" gutterBottom sx={{ marginBottom: '5%', textAlign: 'center' }}>
-                <b>{state?.errorMessage}.</b>
+                <b>{state?.errorMessage}. The System Will Auto Redirect To The {state?.page} Page In 3 Seconds. If No Response Can Click The Below Button To Continue.</b>
               </Typography>
             </Grid>
 
