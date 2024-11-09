@@ -1,11 +1,8 @@
 import '../CSS/Home.css'
 import componentNames from '../General/Component';
-import { useState } from 'react';
-import { Box, Button, CircularProgress, Paper, TextField, Typography } from '@mui/material';
+import { Box, Paper, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import { useForm, Controller } from 'react-hook-form';
-import axios from 'axios';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 interface UserID {
   currentUserID: number;

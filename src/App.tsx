@@ -27,6 +27,7 @@ const App = () => {
       //Setup handler
       connection.on("ReceiveMessage", (user, message) => {
         console.log('message receive: ', message);
+        console.log(user);
       })
 
       //Strat the connection
@@ -39,6 +40,8 @@ const App = () => {
       console.log(e);
     }
   }
+
+  console.log(connection);
 
   //API
   const [data, setData] = useState<any>([])

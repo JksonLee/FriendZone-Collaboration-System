@@ -16,7 +16,7 @@ interface LoginFormData {
 
 
 const Login: React.FC = () => {
-  const { control, handleSubmit, formState: { errors }, setValue } = useForm<LoginFormData>();
+  const { control, handleSubmit, formState: { errors }} = useForm<LoginFormData>();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate()
 

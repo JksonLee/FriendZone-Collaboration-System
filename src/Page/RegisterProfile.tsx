@@ -39,7 +39,7 @@ const RegisterProfile: React.FC = () => {
   //Catch The Data
   const location = useLocation();
   const state = location.state as UserInformation;
-  const { control, handleSubmit, formState: { errors }, getValues } = useForm<ProfileRegisterForm>();
+  const { control, handleSubmit, formState: { errors } } = useForm<ProfileRegisterForm>();
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [error, setError] = useState<string>('');
   const [themeSource, setThemeSource] = useState<string>('');
