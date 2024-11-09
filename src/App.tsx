@@ -20,7 +20,7 @@ const App = () => {
       //Connect to backend
       const connection = new HubConnectionBuilder()
         // Url of Backend
-        .withUrl("https://localhost:7121/chat")
+        .withUrl("http://localhost:7121/chat")
         .configureLogging(LogLevel.Information)
         .build();
 
@@ -47,7 +47,7 @@ const App = () => {
   const [data, setData] = useState<any>([])
 
   function getInform() {
-    axios.get(`https://localhost:7121/api/SuperHero/1`)
+    axios.get(`http://localhost:7121/api/SuperHero/1`)
       .then((response) => {
         setData(response.data)
       });

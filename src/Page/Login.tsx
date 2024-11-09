@@ -26,7 +26,7 @@ const Login: React.FC = () => {
     setLoading(true);
 
     //Simulating API call
-    axios.get(`https://localhost:7121/api/User`).then((response) => {
+    axios.get(`http://localhost:7121/api/User`).then((response) => {
 
       //Authorized User Information
       let { result, userID }: any = checkAuthorized(response.data, data);
@@ -37,9 +37,9 @@ const Login: React.FC = () => {
           setLoading(false);
         }, 500);
 
-        axios.get(`https://localhost:7121/api/Profile/userID/` + userID).then((response) => {
+        axios.get(`http://localhost:7121/api/Profile/userID/` + userID).then((response) => {
 
-          axios.get(`https://localhost:7121/api/Theme/` + response.data.themeID).then((response) => {
+          axios.get(`http://localhost:7121/api/Theme/` + response.data.themeID).then((response) => {
 
             const userInform = { currentUserID: userID, theme: response.data.source, themeID: response.data.themeID };
             navigate('/Home', { state: userInform });
