@@ -1,11 +1,12 @@
-import componentNames from '../General/Component';
-import { checkAuthorized } from '../General/Validation';
+import names from '../General/Component';
+import { checkAuthorized } from '../General/Functions';
 import { useState } from 'react';
 import { Box, Button, CircularProgress, Paper, TextField, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { useForm, Controller } from 'react-hook-form';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
+import BackButton from '../General/BackButton';
 
 
 //TypeScript
@@ -16,17 +17,16 @@ interface LoginFormData {
 
 
 const Login: React.FC = () => {
-  const { control, handleSubmit, formState: { errors }} = useForm<LoginFormData>();
+  const { control, handleSubmit, formState: { errors } } = useForm<LoginFormData>();
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate()
-
+  const navigate = useNavigate();
 
   //Loading UI and API when click submit button
   const onSubmit = async (data: LoginFormData) => {
     setLoading(true);
 
     //Simulating API call
-    axios.get(`http://localhost:7121/api/User`).then((response) => {
+    axios.get(names.getAllUser).then((response) => {
 
       //Authorized User Information
       let { result, userID }: any = checkAuthorized(response.data, data);
@@ -37,9 +37,9 @@ const Login: React.FC = () => {
           setLoading(false);
         }, 500);
 
-        axios.get(`http://localhost:7121/api/Profile/userID/` + userID).then((response) => {
+        axios.get(names.getProfileByID + userID).then((response) => {
 
-          axios.get(`http://localhost:7121/api/Theme/` + response.data.themeID).then((response) => {
+          axios.get(names.getThemeByID + response.data.themeID).then((response) => {
 
             const userInform = { currentUserID: userID, theme: response.data.source, themeID: response.data.themeID };
             navigate('/Home', { state: userInform });
@@ -76,9 +76,11 @@ const Login: React.FC = () => {
 
   //Main UI For Login Page
   return <div>
+    <BackButton />
+
     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
 
-      <Paper elevation={3} sx={{ padding: 3, width: 400, display: 'flex', flexDirection: 'column', alignItems: 'center', borderRadius: componentNames.BoxRadius, backgroundColor: componentNames.BoxBackgroundColor }}>
+      <Paper elevation={3} sx={{ padding: 3, width: 400, display: 'flex', flexDirection: 'column', alignItems: 'center', borderRadius: names.BoxRadius, backgroundColor: names.BoxBackgroundColor }}>
 
         <Typography variant="h4" gutterBottom sx={{ marginBottom: '5%' }}>
           <b>Login</b>
@@ -101,7 +103,7 @@ const Login: React.FC = () => {
             </Grid>
 
             <Grid size={12}>
-              <Button type="submit" variant="contained" fullWidth disabled={loading} sx={{ padding: '10px', backgroundColor: componentNames.ButtonColor }} >
+              <Button type="submit" variant="contained" fullWidth disabled={loading} sx={{ padding: '10px', backgroundColor: names.ButtonColor }} >
                 {loading ? <CircularProgress size={24} /> : 'Login'}
               </Button>
             </Grid>

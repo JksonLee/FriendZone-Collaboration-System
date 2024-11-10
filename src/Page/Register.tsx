@@ -3,10 +3,11 @@ import Grid from '@mui/material/Grid2';
 import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import 'react-toastify/dist/ReactToastify.css';
-import componentNames from '../General/Component';
+import names from '../General/Component';
 import axios from 'axios';
-import { checkEmailExist } from '../General/Validation';
+import { checkEmailExist } from '../General/Functions';
 import { useNavigate } from 'react-router-dom';
+import BackButton from '../General/BackButton';
 
 interface RegisterFormData {
     email: string;
@@ -44,7 +45,7 @@ const Register: React.FC = () => {
         setLoading(true);
         // Simulating an API call
         axios.get(`https://localhost:7121/api/User`).then((response) => {
-            const userData = {email: data.email, password: data.password, secretCode: data.secretCode}
+            const userData = { email: data.email, password: data.password, secretCode: data.secretCode }
             let result: string = checkEmailExist(response.data, userData);
 
             //Decision Option
@@ -80,10 +81,12 @@ const Register: React.FC = () => {
         }, 1500);
     };
 
-    return (
+    return <div>
+        <BackButton />
+        
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '97vh' }}>
-            <Paper elevation={3} sx={{ padding: 3, width: 400, display: 'flex', flexDirection: 'column', alignItems: 'center', borderRadius: componentNames.BoxRadius, backgroundColor: componentNames.BoxBackgroundColor }}>
-                
+            <Paper elevation={3} sx={{ padding: 3, width: 400, display: 'flex', flexDirection: 'column', alignItems: 'center', borderRadius: names.BoxRadius, backgroundColor: names.BoxBackgroundColor }}>
+
                 {HorizontalLinearAlternativeLabelStepper()}
                 <hr style={{ border: '1px solid gray', width: '100%', marginBottom: '5%' }} />
 
@@ -123,7 +126,7 @@ const Register: React.FC = () => {
 
                         {/* Submit Button */}
                         <Grid size={12}>
-                            <Button type="submit" variant="contained" fullWidth disabled={loading} sx={{ padding: '10px', backgroundColor: componentNames.ButtonColor }}>
+                            <Button type="submit" variant="contained" fullWidth disabled={loading} sx={{ padding: '10px', backgroundColor: names.ButtonColor }}>
                                 {loading ? <CircularProgress size={24} /> : 'Register'}
                             </Button>
                         </Grid>
@@ -131,7 +134,8 @@ const Register: React.FC = () => {
                 </form>
             </Paper>
         </Box>
-    );
+
+    </div>
 };
 
 export default Register;

@@ -4,10 +4,11 @@ import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import componentNames from '../General/Component';
+import names from '../General/Component';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
+import BackButton from '../General/BackButton';
 
 interface ProfileRegisterForm {
   name: string;
@@ -133,8 +134,8 @@ const RegisterProfile: React.FC = () => {
                   autoClose: 5000,
                   hideProgressBar: true,
                   style: {
-                    backgroundColor: componentNames.BoxBackgroundColor,
-                    color: componentNames.TextColor,
+                    backgroundColor: names.BoxBackgroundColor,
+                    color: names.TextColor,
                     borderRadius: '8px',
                   },
                 });
@@ -149,7 +150,7 @@ const RegisterProfile: React.FC = () => {
               } else {
                 //Redirect User To Error Page
                 const errorMessage = { errorMessage: "Register Have Error, Please Try Again~", page: "Register" };
-                  navigate('/ErrorPage', { state: errorMessage });
+                navigate('/ErrorPage', { state: errorMessage });
               }
 
             });
@@ -164,9 +165,11 @@ const RegisterProfile: React.FC = () => {
     }, 1500);
   };
 
-  return (
+  return <div>
+    <BackButton />
+
     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '97vh' }}>
-      <Paper elevation={3} sx={{ padding: 3, width: 400, display: 'flex', flexDirection: 'column', alignItems: 'center', borderRadius: componentNames.BoxRadius, backgroundColor: componentNames.BoxBackgroundColor }}>
+      <Paper elevation={3} sx={{ padding: 3, width: 400, display: 'flex', flexDirection: 'column', alignItems: 'center', borderRadius: names.BoxRadius, backgroundColor: names.BoxBackgroundColor }}>
         {HorizontalLinearAlternativeLabelStepper()}
         <hr style={{ border: '1px solid gray', width: '100%', marginBottom: '5%' }} />
         <Typography variant="h4" gutterBottom>
@@ -197,7 +200,7 @@ const RegisterProfile: React.FC = () => {
 
             {/* Submit Button */}
             <Grid size={12}>
-              <Button type="submit" variant="contained" fullWidth disabled={loading} sx={{ padding: '10px', backgroundColor: componentNames.ButtonColor }}>
+              <Button type="submit" variant="contained" fullWidth disabled={loading} sx={{ padding: '10px', backgroundColor: names.ButtonColor }}>
                 {loading ? <CircularProgress size={24} /> : 'Register'}
               </Button>
             </Grid>
@@ -206,7 +209,8 @@ const RegisterProfile: React.FC = () => {
         <ToastContainer />
       </Paper>
     </Box>
-  );
+
+  </div>
 };
 
 export default RegisterProfile;

@@ -1,0 +1,22 @@
+.back-button {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background-color: rgba(245, 245, 245, 0.7); /* Button background color */
+    color: var (--Color); /* Text color */
+    border: none;
+    padding: 5px 10px;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 1000;
+    transition: background-color 0.3s ease;
+  }
+  
+  .back-button:hover {
+    background-color: #0056b3; /* Darker blue when hovered */
+  }
+  
+  .back-button:focus {
+    outline: none;
+  }

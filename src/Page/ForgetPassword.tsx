@@ -2,11 +2,12 @@ import { Button, TextField, Paper, Typography, Box, CircularProgress } from '@mu
 import Grid from '@mui/material/Grid2';
 import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import componentNames from '../General/Component';
+import names from '../General/Component';
 import axios from 'axios';
-import { changePasswordChecking } from '../General/Validation';
+import { changePasswordChecking } from '../General/Functions';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
+import BackButton from '../General/BackButton';
 
 interface ForgotPasswordFormData {
   email: string;
@@ -44,8 +45,8 @@ const ForgotPassword: React.FC = () => {
               autoClose: 3000,
               hideProgressBar: true,
               style: {
-                backgroundColor: componentNames.BoxBackgroundColor,
-                color: componentNames.TextColor,
+                backgroundColor: names.BoxBackgroundColor,
+                color: names.TextColor,
                 borderRadius: '8px',
                 width: '100%',
               },
@@ -63,8 +64,8 @@ const ForgotPassword: React.FC = () => {
               autoClose: 5000,
               hideProgressBar: true,
               style: {
-                backgroundColor: componentNames.BoxBackgroundColor,
-                color: componentNames.TextColor,
+                backgroundColor: names.BoxBackgroundColor,
+                color: names.TextColor,
                 borderRadius: '8px',
               },
             });
@@ -107,9 +108,11 @@ const ForgotPassword: React.FC = () => {
     }, 1500);
   };
 
-  return (
+  return <div>
+    <BackButton />
+
     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-      <Paper elevation={3} sx={{ padding: 3, width: 400, display: 'flex', flexDirection: 'column', alignItems: 'center', borderRadius: componentNames.BoxRadius, backgroundColor: componentNames.BoxBackgroundColor }}>
+      <Paper elevation={3} sx={{ padding: 3, width: 400, display: 'flex', flexDirection: 'column', alignItems: 'center', borderRadius: names.BoxRadius, backgroundColor: names.BoxBackgroundColor }}>
         <Typography variant="h4" gutterBottom sx={{ marginBottom: '5%' }}>
           <b>Forgot Password</b>
         </Typography>
@@ -146,7 +149,7 @@ const ForgotPassword: React.FC = () => {
 
             {/* Submit Button */}
             <Grid size={12}>
-              <Button type="submit" variant="contained" fullWidth disabled={loading} sx={{ padding: '10px', backgroundColor: componentNames.ButtonColor }}>
+              <Button type="submit" variant="contained" fullWidth disabled={loading} sx={{ padding: '10px', backgroundColor: names.ButtonColor }}>
                 {loading ? <CircularProgress size={24} /> : 'Reset Password'}
               </Button>
             </Grid>
@@ -155,7 +158,8 @@ const ForgotPassword: React.FC = () => {
         <ToastContainer />
       </Paper>
     </Box>
-  );
+
+  </div>
 };
 
 export default ForgotPassword;
