@@ -16,94 +16,92 @@ interface ForgotPasswordFormData {
   confirmPassword: string;
 }
 
+interface ErrorMessage {
+  errorMessage: string;
+  page: string;
+}
+
 const ForgotPassword: React.FC = () => {
   const { control, handleSubmit, formState: { errors }, getValues } = useForm<ForgotPasswordFormData>();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate()
+  let errorMessage: ErrorMessage;
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
     setLoading(true);
     // Simulating an API call for password reset with secret code
-    axios.get(`https://localhost:7121/api/User`).then((response) => {
+    axios.get(names.basicUserAPI).then((response) => {
       const userData = { email: data.email, password: data.newPassword, secretCode: data.secretCode };
       console.log(response.data)
       console.log(userData)
       let { result, userId }: any = changePasswordChecking(response.data, userData);
 
       //Decision Option
-      if (result == "Validated") {
-        setTimeout(() => {
-          setLoading(false);
-        }, 500);
+      switch (result) {
+        case "Validated":
+          setTimeout(() => {
+            setLoading(false);
+          }, 500);
+          const LatestUserData = { userID: userId, email: data.email, password: data.newPassword, secretCode: data.secretCode };
+          axios.put(names.basicUserAPI, LatestUserData).then((response) => {
+            if (response.status === 200) {
+              //Success Alert
+              toast.success('Update Successful~ Redirecting...', {
+                position: 'top-center',
+                autoClose: 3000,
+                hideProgressBar: true,
+                style: {
+                  backgroundColor: names.BoxBackgroundColor,
+                  color: names.TextColor,
+                  borderRadius: '8px',
+                  width: '100%',
+                },
+              });
 
-        const LatestUserData = { userID: userId, email: data.email, password: data.newPassword, secretCode: data.secretCode };
-        axios.put(`https://localhost:7121/api/User`, LatestUserData).then((response) => {
-          if (response.status === 200) {
-            //Success Alert
-            toast.success('Update Successful~ Redirecting...', {
-              position: 'top-center',
-              autoClose: 3000,
-              hideProgressBar: true,
-              style: {
-                backgroundColor: names.BoxBackgroundColor,
-                color: names.TextColor,
-                borderRadius: '8px',
-                width: '100%',
-              },
-            });
+              // Redirect Automatically
+              setTimeout(() => {
+                navigate('/Login');
+              }, 3000);
 
-            // Redirect Automatically
-            setTimeout(() => {
-              navigate('/Login');
-            }, 3000);
+            } else {
+              //Fail Alert
+              toast.error('Update Fail', {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: true,
+                style: {
+                  backgroundColor: names.BoxBackgroundColor,
+                  color: names.TextColor,
+                  borderRadius: '8px',
+                },
+              });
 
-          } else {
-            //Fail Alert
-            toast.error('Update Fail', {
-              position: 'top-center',
-              autoClose: 5000,
-              hideProgressBar: true,
-              style: {
-                backgroundColor: names.BoxBackgroundColor,
-                color: names.TextColor,
-                borderRadius: '8px',
-              },
-            });
+              // Redirect after the toast is shown (delay using setTimeout)
+              setTimeout(() => {
+                navigate('/Welcome');
+              }, 5000);
+            }
+          });
+          break;
 
-            // Redirect after the toast is shown (delay using setTimeout)
-            setTimeout(() => {
-              navigate('/Welcome');
-            }, 5000);
-          }
-        });
-      } else if (result == "Invalidated") {
-        setTimeout(() => {
-          setLoading(false);
-        }, 500);
+        case "Invalidated":
+          errorMessage = { errorMessage: "The Secret Code Is Incorrect, Please Try Agian", page: "ForgetPassword" };
+          navigate('/ErrorPage', { state: errorMessage });
+          break;
 
-        const errorMessage = { errorMessage: "The Secret Code Is Incorrect, Please Try Agian", page: "ForgetPassword" };
-        navigate('/ErrorPage', { state: errorMessage });
+        case "Not Existing":
+          errorMessage = { errorMessage: "The Email Is Incorrect, Please Try Agian", page: "ForgetPassword" };
+          navigate('/ErrorPage', { state: errorMessage });
+          break;
 
-      } else if (result == "Not Existing") {
-        setTimeout(() => {
-          setLoading(false);
-        }, 500);
-
-        const errorMessage = { errorMessage: "The Email Is Incorrect, Please Try Agian", page: "ForgetPassword" };
-        navigate('/ErrorPage', { state: errorMessage });
-
-      } else {
-        setTimeout(() => {
-          setLoading(false);
-        }, 500);
-
-        const errorMessage = { errorMessage: "Something Is Wrong, Please Refresh The Page Again, Sorry~", page: "Welcome" };
-        navigate('/ErrorPage', { state: errorMessage });
-      }
+        default:
+          errorMessage = { errorMessage: "Something Is Wrong, Please Refresh The Page Again, Sorry~", page: " " };
+          navigate('/ErrorPage', { state: errorMessage });
+          break;
+      };
     });
 
     setTimeout(() => {
-      console.log('Password reset successful', data);
       setLoading(false);
     }, 1500);
   };

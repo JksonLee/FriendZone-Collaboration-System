@@ -16,18 +16,7 @@ interface ProfileRegisterForm {
   bio: string;
   onlineStatus: string;
   userID: number;
-  users: {
-    userID: number,
-    email: string,
-    password: string,
-    secretCode: number
-  };
   themeID: number;
-  themes: {
-    themeID: number,
-    name: string,
-    source: string
-  };
 }
 
 interface UserInformation {
@@ -35,6 +24,18 @@ interface UserInformation {
   password: string;
   secretCode: number;
 }
+
+interface UserInformation2 {
+  currentUserID: number;
+  theme: string;
+  themeID: number;
+}
+
+interface ErrorMessage {
+  errorMessage: string;
+  page: string;
+}
+
 
 const RegisterProfile: React.FC = () => {
   //Catch The Data
@@ -44,7 +45,7 @@ const RegisterProfile: React.FC = () => {
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [error, setError] = useState<string>('');
   const [themeSource, setThemeSource] = useState<string>('');
-  const [themeId, setThemeId] = useState<number>();
+  const [themeId, setThemeId] = useState<number>(1);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate()
   const steps = [
@@ -54,6 +55,8 @@ const RegisterProfile: React.FC = () => {
   const userEmail = state.email;
   const userPassword = state.password;
   const userSecretCode = state.secretCode;
+  let errorMessage: ErrorMessage;
+  let userInformation: UserInformation2;
 
   // Nevigation Bar
   function HorizontalLinearAlternativeLabelStepper() {
@@ -81,7 +84,6 @@ const RegisterProfile: React.FC = () => {
         reader.onloadend = () => {
           // The base64 string will be available here
           setImageBase64(reader.result as string);
-          // console.log(imageBase64)
         };
 
         //Convert file to base64
@@ -103,16 +105,14 @@ const RegisterProfile: React.FC = () => {
 
     //Store The UserDate Into UserDB
     const finalUserRegisterInform = { email: userEmail, password: userPassword, secretCode: userSecretCode }
-    console.log(finalUserRegisterInform);
 
-    axios.post(`https://localhost:7121/api/User`, finalUserRegisterInform).then((response) => {
+    axios.post(names.basicUserAPI, finalUserRegisterInform).then((response) => {
       if (response.status === 200) {
         //Get The UserID
-        axios.get(`https://localhost:7121/api/User/userEmail/` + userEmail).then((response) => {
+        axios.get(names.getUserByUserEmail + userEmail).then((response) => {
           let userId: number = response.data.userID;
-          console.log(userId);
 
-          axios.get(`https://localhost:7121/api/Theme/1`).then((response) => {
+          axios.get(names.getThemeID1).then((response) => {
             //Store The UserData Into ProfileDB
             //Set The finalDataList Data
             const finalDataList = {
@@ -126,8 +126,12 @@ const RegisterProfile: React.FC = () => {
             setThemeSource(response.data.themeSource.toString());
             setThemeId(response.data.themeID);
 
-            axios.post(`https://localhost:7121/api/Profile`, finalDataList).then((response) => {
+            axios.post(names.basicProfileAPI, finalDataList).then((response) => {
               if (response.status === 200) {
+                setTimeout(() => {
+                  setLoading(false);
+                }, 1500);
+
                 //Success Alert
                 toast.success('Registration Successful~', {
                   position: 'top-center',
@@ -140,29 +144,36 @@ const RegisterProfile: React.FC = () => {
                   },
                 });
 
-                const userInform = { currentUserID: finalDataList.userID, theme: themeSource, themeID: themeId };
+                userInformation = { currentUserID: finalDataList.userID, theme: themeSource, themeID: themeId };
 
                 // Redirect Automatically
                 setTimeout(() => {
-                  navigate('/Home', { state: userInform });
+                  navigate('/Home', { state: userInformation });
                 }, 3000);
 
               } else {
+                setTimeout(() => {
+                  setLoading(false);
+                }, 1500);
+
                 //Redirect User To Error Page
-                const errorMessage = { errorMessage: "Register Have Error, Please Try Again~", page: "Register" };
+                errorMessage = { errorMessage: "Register Have Error, Please Try Again~", page: "Register" };
                 navigate('/ErrorPage', { state: errorMessage });
               }
 
             });
           });
         });
+      } else {
+        setTimeout(() => {
+          setLoading(false);
+        }, 1500);
+
+        //Redirect User To Error Page
+        errorMessage = { errorMessage: "Register Have Error, Please Try Again~", page: "Register" };
+        navigate('/ErrorPage', { state: errorMessage });
       }
     });
-
-    //Loading Animation
-    setTimeout(() => {
-      setLoading(false);
-    }, 1500);
   };
 
   return <div>

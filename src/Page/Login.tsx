@@ -15,60 +15,66 @@ interface LoginFormData {
   password: string;
 }
 
+interface ErrorMessage {
+  errorMessage: string;
+  page: string;
+}
+
+interface userInformation {
+  currentUserID: number;
+  theme: string;
+  themeID: number;
+}
+
 
 const Login: React.FC = () => {
   const { control, handleSubmit, formState: { errors } } = useForm<LoginFormData>();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  let errorMessage: ErrorMessage;
+  let userInformation: userInformation;
 
   //Loading UI and API when click submit button
   const onSubmit = async (data: LoginFormData) => {
     setLoading(true);
 
     //Simulating API call
-    axios.get(names.getAllUser).then((response) => {
+    axios.get(names.basicUserAPI).then((response) => {
 
       //Authorized User Information
       let { result, userID }: any = checkAuthorized(response.data, data);
 
+      setTimeout(() => {
+        setLoading(false);
+      }, 500);
+
       //Decision Option
-      if (result == "Authorized") {
-        setTimeout(() => {
-          setLoading(false);
-        }, 500);
+      switch (result) {
+        case "Authorized":
+          axios.get(names.getProfileByUserID + userID).then((response) => {
 
-        axios.get(names.getProfileByID + userID).then((response) => {
+            axios.get(names.getThemeByID + response.data.themeID).then((response) => {
 
-          axios.get(names.getThemeByID + response.data.themeID).then((response) => {
-
-            const userInform = { currentUserID: userID, theme: response.data.source, themeID: response.data.themeID };
-            navigate('/Home', { state: userInform });
+              userInformation = { currentUserID: userID, theme: response.data.source, themeID: response.data.themeID };
+              navigate('/Home', { state: userInformation });
+            });
           });
-        });
+          break;
 
-      } else if (result == "Password Incorrect") {
-        setTimeout(() => {
-          setLoading(false);
-        }, 500);
+        case "Password Incorrect":
+          errorMessage = { errorMessage: "Your Password Is Incorrect, Please Try Again", page: "Login" };
+          navigate('/ErrorPage', { state: errorMessage });
+          break;
 
-        const errorMessage = { errorMessage: "Your Password Is Incorrect, Please Try Again", page: "Login" };
-        navigate('/ErrorPage', { state: errorMessage });
+        case "Unauthorized":
+          errorMessage = { errorMessage: "Your Password Is Incorrect, Please Try Again", page: "Login" };
+          navigate('/ErrorPage', { state: errorMessage });
+          break;
 
-      } else if (result == "Unauthorized") {
-        setTimeout(() => {
-          setLoading(false);
-        }, 500);
-
-        const errorMessage = { errorMessage: "You Did Not Register Yet, Please Register First", page: "Register" };
-        navigate('/ErrorPage', { state: errorMessage });
-
-      } else {
-        setTimeout(() => {
-          setLoading(false);
-        }, 500);
-
-        const errorMessage = { errorMessage: "Something Is Wrong, Please Refresh The Page Again, Sorry~", page: "Welcome" };
-        navigate('/ErrorPage', { state: errorMessage });
+        default:
+          errorMessage = { errorMessage: "Something Is Wrong, Please Refresh The Page Again, Sorry~", page: " " };
+          navigate('/ErrorPage', { state: errorMessage });
+          break;
       }
     });
   };

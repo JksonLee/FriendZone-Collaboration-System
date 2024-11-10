@@ -10,13 +10,17 @@ const names = {
   TextColor: 'black',
 
   //User DB
-  getAllUser: `http://localhost:7121/api/User`,
+  basicUserAPI: `http://localhost:7121/api/User`,
+  getUserByUserEmail: `http://localhost:7121/api/User/userEmail/`,
 
   //Profile DB
-  getProfileByID: `http://localhost:7121/api/Profile/userID/`,
+  basicProfileAPI: `http://localhost:7121/api/Profile`,
+  getProfileByUserID: `http://localhost:7121/api/Profile/userID/`,
 
   //Theme DB
+  basicThemeAPI: `http://localhost:7121/api/Theme`,
   getThemeByID: `http://localhost:7121/api/Theme/`,
+  getThemeID1: `http://localhost:7121/api/Theme/1`,
 };
 
 export default names;

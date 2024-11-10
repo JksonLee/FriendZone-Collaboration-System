@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import componentNames from './Component';
 import '../CSS/BackButton.css'
+import { refreshPage } from './Functions';
 
 const BackButton: React.FC = () => {
   const navigate = useNavigate();
@@ -11,9 +12,7 @@ const BackButton: React.FC = () => {
     navigate(-1);
 
     // Reload the page after navigation
-    setTimeout(() => {
-      window.location.reload();
-    }, 5);
+    refreshPage(2);
   };
 
   return (

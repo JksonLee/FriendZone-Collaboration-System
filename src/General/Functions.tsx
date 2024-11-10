@@ -55,3 +55,10 @@ export const changePasswordChecking = (dataList: any, userInputData: any) => {
     return { result, userId };
 }
 
+
+//Refresh Pgae
+export const refreshPage = (time:number) => {
+    setTimeout(() => {
+        window.location.reload();
+      }, time);
+}

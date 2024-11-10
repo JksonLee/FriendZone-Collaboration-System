@@ -16,10 +16,23 @@ interface RegisterFormData {
     secretCode: number;
 }
 
+interface ErrorMessage {
+    errorMessage: string;
+    page: string;
+}
+
+interface UserInformation {
+    email: string;
+    password: string;
+    secretCode: number;
+}
+
 const Register: React.FC = () => {
     const { control, handleSubmit, formState: { errors }, getValues } = useForm<RegisterFormData>();
     const [loading, setLoading] = useState(false);
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    let errorMessage: ErrorMessage;
+    let userInformation: UserInformation;
 
     const steps = [
         'Register An Account',
@@ -40,50 +53,40 @@ const Register: React.FC = () => {
         );
     }
 
-
     const onSubmit = async (data: RegisterFormData) => {
         setLoading(true);
         // Simulating an API call
-        axios.get(`https://localhost:7121/api/User`).then((response) => {
+        axios.get(names.basicUserAPI).then((response) => {
             const userData = { email: data.email, password: data.password, secretCode: data.secretCode }
             let result: string = checkEmailExist(response.data, userData);
 
+            setTimeout(() => {
+                setLoading(false);
+            }, 500);
+
             //Decision Option
-            if (result == "Not Existing") {
-                setTimeout(() => {
-                    setLoading(false);
-                }, 500);
+            switch (result) {
+                case "Not Existing":
+                    userInformation = { email: data.email, password: data.password, secretCode: data.secretCode };
+                    navigate('/RegisterProfile', { state: userInformation });
+                    break;
 
-                const userInformation = { email: data.email, password: data.password, secretCode: data.secretCode };
-                navigate('/RegisterProfile', { state: userInformation });
+                case "Existing":
+                    errorMessage = { errorMessage: "The Email Already Been Registered, Please Try Agian", page: "Register" };
+                    navigate('/ErrorPage', { state: errorMessage });
+                    break;
 
-            } else if (result == "Existing") {
-                setTimeout(() => {
-                    setLoading(false);
-                }, 500);
-
-                const errorMessage = { errorMessage: "The Email Already Been Registered, Please Try Agian", page: "Register" };
-                navigate('/ErrorPage', { state: errorMessage });
-
-            } else {
-                setTimeout(() => {
-                    setLoading(false);
-                }, 500);
-
-                const errorMessage = { errorMessage: "Something Is Wrong, Please Refresh The Page Again, Sorry~", page: "Welcome" };
-                navigate('/ErrorPage', { state: errorMessage });
+                default:
+                    errorMessage = { errorMessage: "Something Is Wrong, Please Refresh The Page Again, Sorry~", page: "" };
+                    navigate('/ErrorPage', { state: errorMessage });
+                    break;
             }
         });
-
-        //Loading Animation
-        setTimeout(() => {
-            setLoading(false);
-        }, 1500);
     };
 
     return <div>
         <BackButton />
-        
+
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '97vh' }}>
             <Paper elevation={3} sx={{ padding: 3, width: 400, display: 'flex', flexDirection: 'column', alignItems: 'center', borderRadius: names.BoxRadius, backgroundColor: names.BoxBackgroundColor }}>
 

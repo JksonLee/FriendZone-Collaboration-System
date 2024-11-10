@@ -4,8 +4,9 @@ import { Box, Paper, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { useLocation } from 'react-router-dom';
 import BackButton from '../General/BackButton';
+import BottomMenuBar from '../General/BottomMenuBar';
 
-interface UserID {
+interface UserInformation {
   currentUserID: number;
   theme: string;
   themeID: number;
@@ -14,20 +15,22 @@ interface UserID {
 const Home = () => {
   //Catch The Data
   const location = useLocation();
-  const state = location.state as UserID;
+  const state = location.state as UserInformation;
+  const currentUserID = state.currentUserID;
+  const theme = state.theme;
+  const themeID = state.themeID;
+  const userInformationList = { currentUserID, theme, themeID };
 
   // Update the CSS variable dynamically
   document.documentElement.style.setProperty('--backgroundImage', `url('${state.theme}')`);
 
-  return <div >
-    <BackButton />
-    
+  return <div>
     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
 
-      <Paper elevation={3} sx={{ padding: 3, width: 400, display: 'flex', flexDirection: 'column', alignItems: 'center', borderRadius: names.BoxRadius, backgroundColor: names.BoxBackgroundColor }}>
+      <Paper elevation={3} sx={{ padding: 3, width: 1100, display: 'flex', flexDirection: 'column', alignItems: 'center', borderRadius: names.BoxRadius, backgroundColor: names.BoxBackgroundColor }}>
 
         <Typography variant="h4" gutterBottom sx={{ marginBottom: '5%' }}>
-          <b>Login</b>
+          <b>Main Page</b>
         </Typography>
 
         <Grid container spacing={2}>
@@ -43,8 +46,8 @@ const Home = () => {
 
           </Grid>
 
-          <Grid size={12}>
-
+          <Grid size={12} sx={{ marginBottom: '-1.5%' }}>
+            {BottomMenuBar(userInformationList, "main")}
           </Grid>
         </Grid>
       </Paper>
