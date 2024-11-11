@@ -4,6 +4,8 @@ import { Box, Paper, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { useLocation } from 'react-router-dom';
 import BottomMenuBar from '../General/BottomMenuBar';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 interface UserInformation {
   currentUserID: number;
@@ -19,12 +21,24 @@ const Calendar = () => {
   const theme = state.theme;
   const themeID = state.themeID;
   const userInformationList = { currentUserID, theme, themeID };
+  const [userProfileData, setUserProfileData] = useState<any>([]);
 
   // Update the CSS variable dynamically
   document.documentElement.style.setProperty('--backgroundImage', `url('${state.theme}')`);
 
+  // Catch Data From DB
+  function getUserData() {
+    axios.get(names.getProfileByUserID + currentUserID).then((response) => {
+      setUserProfileData(response.data);
+    });
+  }
+
+  useEffect(() => {
+    getUserData()
+  }, []);
+
   return <div>
-    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '97vh' }}>
 
       <Paper elevation={3} sx={{ padding: 3, width: 1100, display: 'flex', flexDirection: 'column', alignItems: 'center', borderRadius: names.BoxRadius, backgroundColor: names.BoxBackgroundColor }}>
 
@@ -46,7 +60,7 @@ const Calendar = () => {
           </Grid>
 
           <Grid size={12} sx={{ marginBottom: '-1.5%' }}>
-            {BottomMenuBar(userInformationList, "calendar")}
+            {BottomMenuBar(userInformationList, "calendar", userProfileData.photo, userProfileData.name)}
           </Grid>
         </Grid>
       </Paper>

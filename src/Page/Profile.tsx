@@ -1,6 +1,6 @@
 import '../CSS/Home.css'
 import names from '../General/Component';
-import { Avatar, Box, Paper } from '@mui/material';
+import { Avatar, Box, Button, Modal, Paper, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { useLocation } from 'react-router-dom';
 import BottomMenuBar from '../General/BottomMenuBar';
@@ -24,6 +24,23 @@ const Profile = () => {
   const userInformationList = { currentUserID, theme, themeID };
   const [userProfileData, setUserProfileData] = useState<any>([]);
   const [userData, setUserData] = useState<any>([]);
+  const [isOnline, setIsOnline] = useState<boolean>(true);
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  //Background Modal Design
+  const modalStyle = {
+    position: 'absolute' as 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 600,
+    bgcolor: 'background.paper',
+    borderRadius: '20px',
+    boxShadow: 24,
+    p: 4,
+  };
 
   // Update the CSS variable dynamically
   document.documentElement.style.setProperty('--backgroundImage', `url('${state.theme}')`);
@@ -39,12 +56,29 @@ const Profile = () => {
     });
   }
 
+  function checkOnlineStatus() {
+    if (userProfileData.onlineStatus === "Offline") {
+      setIsOnline(false);
+    } else {
+      setIsOnline(true);
+    }
+  }
+
   useEffect(() => {
-    getUserData()
+    getUserData();
+    checkOnlineStatus();
   }, []);
 
+  function handleDeleteAccount() {
+
+  }
+
+  function handleLogOut() {
+    
+  }
+
   return <div>
-    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '97vh' }}>
 
       <Paper elevation={3} sx={{ padding: 3, width: 1100, display: 'flex', flexDirection: 'column', alignItems: 'center', borderRadius: names.BoxRadius, backgroundColor: names.BoxBackgroundColor }}>
 
@@ -52,7 +86,11 @@ const Profile = () => {
           {/* Icon */}
           <Grid size={5}></Grid>
           <Grid size={2}>
-            <Avatar src={userProfileData.photo} sx={{ width: 170, height: 170, alignItems: 'center', marginTop: '-65%' }} />
+            <Avatar src={userProfileData.photo} sx={{
+              width: 170, height: 170, alignItems: 'center', marginTop: '-68%',
+              border: '8px solid', // Border width
+              borderColor: isOnline ? 'green' : 'gray', // Border color (green if online, gray if offline)
+            }} />
           </Grid>
           <Grid size={5}></Grid>
 
@@ -69,8 +107,30 @@ const Profile = () => {
             </Box>
           </Grid>
 
+          <Grid size={4}>
+            <Button onClick={handleDeleteAccount} fullWidth sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: names.ButtonColor, color: 'whitesmoke' }}>Delete Account</Button>
+          </Grid>
+
+          <Grid size={4}>
+              <Button onClick={handleOpen} fullWidth sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: names.ButtonColor, color: 'whitesmoke' }}>Edit</Button>
+              <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+                <Box sx={modalStyle}>
+                  <Typography id="modal-modal-title" variant="h5" component="h2" sx={{ textAlign: 'center', marginBottom: 4, color: 'black' }}>
+                    Edit Your Profile Detail
+                  </Typography>
+                  <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                    {/* <EditInform add={changeInform} /> */}
+                  </Typography>
+                </Box>
+              </Modal>
+          </Grid>
+
+          <Grid size={4}>
+            <Button onClick={handleLogOut} fullWidth sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: names.ButtonColor, color: 'whitesmoke' }}>Log Out</Button>
+          </Grid>
+
           <Grid size={12} sx={{ marginBottom: '-1.5%' }}>
-            {BottomMenuBar(userInformationList, "profile")}
+            {BottomMenuBar(userInformationList, "profile", userProfileData.photo, userProfileData.name)}
           </Grid>
         </Grid>
       </Paper>

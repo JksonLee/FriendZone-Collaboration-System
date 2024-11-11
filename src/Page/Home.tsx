@@ -38,9 +38,9 @@ const Home = () => {
   }, []);
 
   return <div>
-    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', maxHeight: '100vh', marginTop: '10%' }}>
+    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '97vh' }}>
 
-      <Paper elevation={3} sx={{ padding: 3, width: 1100, display: 'flex', flexDirection: 'column', alignItems: 'center', borderRadius: names.BoxRadius, backgroundColor: names.BoxBackgroundColor, marginBottom: '4%' }}>
+      <Paper elevation={3} sx={{ padding: 3, width: 1100, display: 'flex', flexDirection: 'column', alignItems: 'center', borderRadius: names.BoxRadius, backgroundColor: names.BoxBackgroundColor }}>
 
         <Typography variant="h4" gutterBottom sx={{ marginBottom: '5%' }}>
           <b>Main Page</b>
