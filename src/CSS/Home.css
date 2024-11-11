@@ -3,7 +3,11 @@ html {
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-    height: 100vh;
+    background-attachment: 'fixed';
+    min-height: '100vh';
+    display: 'flex';
+    flex-direction: 'column';
+    justify-content: 'flex-start';
     margin: 0;
     color: whitesmoke;
 }

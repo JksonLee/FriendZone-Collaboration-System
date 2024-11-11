@@ -206,7 +206,7 @@ const RegisterProfile: React.FC = () => {
             <Grid size={12}>
               <Controller name="bio" control={control} rules={{ required: 'Bio is required' }}
                 render={({ field }) => (
-                  <TextField {...field} label="Bio" fullWidth multiline variant="outlined" error={!!errors.bio} helperText={errors.bio?.message} />)} />
+                  <TextField {...field} label="Bio (Maximum 100 Characters)" fullWidth multiline variant="outlined" inputProps={{ maxLength: 100 }} error={!!errors.bio} helperText={errors.bio?.message} />)} />
             </Grid>
 
             {/* Submit Button */}

@@ -11,7 +11,7 @@ interface UserInformation {
   themeID: number;
 }
 
-const Calendar = () => {
+const Report = () => {
   //Catch The Data
   const location = useLocation();
   const state = location.state as UserInformation;
@@ -29,7 +29,7 @@ const Calendar = () => {
       <Paper elevation={3} sx={{ padding: 3, width: 1100, display: 'flex', flexDirection: 'column', alignItems: 'center', borderRadius: names.BoxRadius, backgroundColor: names.BoxBackgroundColor }}>
 
         <Typography variant="h4" gutterBottom sx={{ marginBottom: '5%' }}>
-          <b>Calendar</b>
+          <b>Report</b>
         </Typography>
 
         <Grid container spacing={2}>
@@ -46,7 +46,7 @@ const Calendar = () => {
           </Grid>
 
           <Grid size={12} sx={{ marginBottom: '-1.5%' }}>
-            {BottomMenuBar(userInformationList, "calendar")}
+            {BottomMenuBar(userInformationList, "report")}
           </Grid>
         </Grid>
       </Paper>
@@ -54,4 +54,4 @@ const Calendar = () => {
   </div>
 }
 
-export default Calendar
+export default Report

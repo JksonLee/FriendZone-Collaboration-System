@@ -3,7 +3,6 @@ import names from '../General/Component';
 import { Box, Paper, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { useLocation } from 'react-router-dom';
-import BackButton from '../General/BackButton';
 import BottomMenuBar from '../General/BottomMenuBar';
 
 interface UserInformation {

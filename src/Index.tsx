@@ -9,6 +9,7 @@ import Profile from './Page/Profile';
 import FriendList from './Page/FriendList';
 import AddNewFriend from './Page/AddNewFriend';
 import Calendar from './Page/Calendar';
+import Report from './Page/Report';
 import ErrorPage from './Page/ErrorPage';
 
 
@@ -26,6 +27,7 @@ const Index = () => {
                 <Route path='/FriendList' element={<FriendList />}/>
                 <Route path='/AddNewFriend' element={<AddNewFriend />}/>
                 <Route path='/Calendar' element={<Calendar />}/>
+                <Route path='/Report' element={<Report />}/>
                 <Route path='/ErrorPage' element={<ErrorPage />}/>
             </Routes>
         </Router>

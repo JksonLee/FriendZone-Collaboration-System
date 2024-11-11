@@ -12,6 +12,7 @@ const names = {
   //User DB
   basicUserAPI: `http://localhost:7121/api/User`,
   getUserByUserEmail: `http://localhost:7121/api/User/userEmail/`,
+  getUserByUserID: `http://localhost:7121/api/User/`,
 
   //Profile DB
   basicProfileAPI: `http://localhost:7121/api/Profile`,

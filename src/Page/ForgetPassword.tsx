@@ -32,8 +32,6 @@ const ForgotPassword: React.FC = () => {
     // Simulating an API call for password reset with secret code
     axios.get(names.basicUserAPI).then((response) => {
       const userData = { email: data.email, password: data.newPassword, secretCode: data.secretCode };
-      console.log(response.data)
-      console.log(userData)
       let { result, userId }: any = changePasswordChecking(response.data, userData);
 
       //Decision Option
