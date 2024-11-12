@@ -22,6 +22,10 @@ const names = {
   basicThemeAPI: `http://localhost:7121/api/Theme`,
   getThemeByID: `http://localhost:7121/api/Theme/`,
   getThemeID1: `http://localhost:7121/api/Theme/1`,
+
+  //Action DB
+  basicActionAPI: `http://localhost:7121/api/Action`,
+  getActionByID: `http://localhost:7121/api/Action/`,
 };
 
 export default names;

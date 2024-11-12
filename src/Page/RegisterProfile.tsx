@@ -31,6 +31,13 @@ interface UserInformation2 {
   themeID: number;
 }
 
+interface ActionInformation {
+  name: string;
+  date: any;
+  time: any;
+  userID: number;
+}
+
 interface ErrorMessage {
   errorMessage: string;
   page: string;
@@ -44,7 +51,7 @@ const RegisterProfile: React.FC = () => {
   const { control, handleSubmit, formState: { errors } } = useForm<ProfileRegisterForm>();
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [error, setError] = useState<string>('');
-  const [themeSource, setThemeSource] = useState<string>('');
+  const [themeSource, setThemeSource] = useState<any>();
   const [themeId, setThemeId] = useState<number>(1);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate()
@@ -57,6 +64,8 @@ const RegisterProfile: React.FC = () => {
   const userSecretCode = state.secretCode;
   let errorMessage: ErrorMessage;
   let userInformation: UserInformation2;
+  let actionInformation: ActionInformation;
+  const now = new Date();
 
   // Nevigation Bar
   function HorizontalLinearAlternativeLabelStepper() {
@@ -123,7 +132,7 @@ const RegisterProfile: React.FC = () => {
               userID: userId,
               themeID: response.data.themeID,
             }
-            setThemeSource(response.data.themeSource.toString());
+            setThemeSource(response.data.themeSource);
             setThemeId(response.data.themeID);
 
             axios.post(names.basicProfileAPI, finalDataList).then((response) => {
@@ -145,6 +154,30 @@ const RegisterProfile: React.FC = () => {
                 });
 
                 userInformation = { currentUserID: finalDataList.userID, theme: themeSource, themeID: themeId };
+
+                const currentDate = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
+
+                const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+
+
+                actionInformation = { name: "Register Account", date: currentDate, time: currentTime, userID: userInformation.currentUserID };
+
+                axios.post(names.basicProfileAPI, actionInformation).then((response) => {
+                  if (response.status === 200) {
+                    // Redirect Automatically
+                    setTimeout(() => {
+                      navigate('/Home', { state: userInformation });
+                    }, 3000);
+                  } else {
+                    setTimeout(() => {
+                      setLoading(false);
+                    }, 1500);
+
+                    //Redirect User To Error Page
+                    errorMessage = { errorMessage: "Register Have Error, Please Try Again~", page: "Register" };
+                    navigate('/ErrorPage', { state: errorMessage });
+                  }
+                });
 
                 // Redirect Automatically
                 setTimeout(() => {
@@ -189,7 +222,7 @@ const RegisterProfile: React.FC = () => {
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={2}>
-            {/* Email Field */}
+            {/* Name Field */}
             <Grid size={12}>
               <Controller name="name" control={control} rules={{ required: 'Name is required', pattern: { value: /^[a-zA-Z0-9_]{2,}$/, message: 'Invalid name format, only accept alphabet, number and underscroll' } }}
                 render={({ field }) => (

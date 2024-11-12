@@ -26,6 +26,13 @@ interface userInformation {
   themeID: number;
 }
 
+interface ActionInformation {
+  name: string;
+  date: any;
+  time: any;
+  userID: number;
+}
+
 
 const Login: React.FC = () => {
   const { control, handleSubmit, formState: { errors } } = useForm<LoginFormData>();
@@ -33,6 +40,8 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   let errorMessage: ErrorMessage;
   let userInformation: userInformation;
+  let actionInformation: ActionInformation;
+  const now = new Date();
 
   //Loading UI and API when click submit button
   const onSubmit = async (data: LoginFormData) => {
@@ -54,6 +63,15 @@ const Login: React.FC = () => {
           axios.get(names.getProfileByUserID + userID).then((response) => {
 
             axios.get(names.getThemeByID + response.data.themeID).then((response) => {
+
+              const currentDate = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
+
+              const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+
+
+              actionInformation = { name: "Login", date: currentDate, time: currentTime, userID: userID };
+
+              // axios.post(names.basicActionAPI, actionInformation);
 
               userInformation = { currentUserID: userID, theme: response.data.source, themeID: response.data.themeID };
               navigate('/Home', { state: userInformation });

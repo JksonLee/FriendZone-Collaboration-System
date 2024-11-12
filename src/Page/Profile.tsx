@@ -2,11 +2,13 @@ import '../CSS/Home.css'
 import names from '../General/Component';
 import { Avatar, Box, Button, Modal, Paper, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import BottomMenuBar from '../General/BottomMenuBar';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import ProfileDisplayFormat from '../General/ProfileDisplayFormat';
+import { refreshPage } from '../General/Functions';
+import EditProfile from './EditProfile';
 
 interface UserInformation {
   currentUserID: number;
@@ -25,9 +27,13 @@ const Profile = () => {
   const [userProfileData, setUserProfileData] = useState<any>([]);
   const [userData, setUserData] = useState<any>([]);
   const [isOnline, setIsOnline] = useState<boolean>(true);
-  const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const [openEdit, setOpenEdit] = useState(false);
+  const handleOpenEdit = () => setOpenEdit(true);
+  const handleCloseEdit = () => setOpenEdit(false);
+  const [openDelete, setOpenDelete] = useState(false);
+  const handleOpenDelete = () => setOpenDelete(true);
+  const handleCloseDelete = () => setOpenDelete(false);
+  const navigate = useNavigate();
 
   //Background Modal Design
   const modalStyle = {
@@ -69,12 +75,16 @@ const Profile = () => {
     checkOnlineStatus();
   }, []);
 
-  function handleDeleteAccount() {
-
+  function handleLogOut() {
+    navigate('/');
+    refreshPage(2);
   }
 
-  function handleLogOut() {
-    
+  function changeInform(profileUpdateInformation: any) {
+    axios.put(names.basicProfileAPI, profileUpdateInformation)
+      .then((response) => {
+        setUserProfileData(response.data)
+      })
   }
 
   return <div>
@@ -108,18 +118,28 @@ const Profile = () => {
           </Grid>
 
           <Grid size={4}>
-            <Button onClick={handleDeleteAccount} fullWidth sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: names.ButtonColor, color: 'whitesmoke' }}>Delete Account</Button>
+            <Button onClick={handleOpenDelete} fullWidth sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: names.ButtonColor, color: 'whitesmoke' }}>Delete Account</Button>
+            <Modal open={openDelete} onClose={handleCloseDelete} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+                <Box sx={modalStyle}>
+                  <Typography id="modal-modal-title" variant="h4" component="h2" sx={{ textAlign: 'center', marginBottom: 4, color: 'red' }}>
+                    DELETE YOUR ACCOUNT?
+                  </Typography>
+                  <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                    {/* <EditInform add={changeInform} /> */}
+                  </Typography>
+                </Box>
+              </Modal>
           </Grid>
 
           <Grid size={4}>
-              <Button onClick={handleOpen} fullWidth sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: names.ButtonColor, color: 'whitesmoke' }}>Edit</Button>
-              <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+              <Button onClick={handleOpenEdit} fullWidth sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: names.ButtonColor, color: 'whitesmoke' }}>Edit</Button>
+              <Modal open={openEdit} onClose={handleCloseEdit} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
                 <Box sx={modalStyle}>
                   <Typography id="modal-modal-title" variant="h5" component="h2" sx={{ textAlign: 'center', marginBottom: 4, color: 'black' }}>
                     Edit Your Profile Detail
                   </Typography>
                   <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                    {/* <EditInform add={changeInform} /> */}
+                    <EditProfile add={changeInform} name={userProfileData.name} bio={userProfileData.bio} photo={userProfileData.photo} onlineStatus={userProfileData.onlineStatus} />
                   </Typography>
                 </Box>
               </Modal>

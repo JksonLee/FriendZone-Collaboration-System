@@ -47,15 +47,11 @@ const Home = () => {
         </Typography>
 
         <Grid container spacing={2}>
-          <Grid size={12}>
+          <Grid size={4}>
 
           </Grid>
 
-          <Grid size={12}>
-
-          </Grid>
-
-          <Grid size={12}>
+          <Grid size={8}>
 
           </Grid>
 
