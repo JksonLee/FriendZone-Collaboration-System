@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import ProfileDisplayFormat from '../General/ProfileDisplayFormat';
 import { refreshPage } from '../General/Functions';
 import EditProfile from './EditProfile';
+import { toast, ToastContainer } from 'react-toastify';
 
 interface UserInformation {
   currentUserID: number;
@@ -57,17 +58,19 @@ const Profile = () => {
       setUserProfileData(response.data);
     });
 
-    axios.get(names.getUserByUserID + currentUserID).then((response) => {
+    axios.get(names.getUserByID + currentUserID).then((response) => {
       setUserData(response.data);
     });
   }
 
   function checkOnlineStatus() {
-    if (userProfileData.onlineStatus === "Offline") {
-      setIsOnline(false);
-    } else {
-      setIsOnline(true);
-    }
+    axios.get(names.getProfileByUserID + currentUserID).then((response) => {
+      if (response.data.onlineStatus === "Offline") {
+        setIsOnline(false);
+      } else {
+        setIsOnline(true);
+      }
+    });
   }
 
   useEffect(() => {
@@ -75,16 +78,39 @@ const Profile = () => {
     checkOnlineStatus();
   }, []);
 
+  console.log(isOnline, userProfileData.onlineStatus)
+
   function handleLogOut() {
     navigate('/');
     refreshPage(2);
   }
 
-  function changeInform(profileUpdateInformation: any) {
-    axios.put(names.basicProfileAPI, profileUpdateInformation)
-      .then((response) => {
-        setUserProfileData(response.data)
-      })
+  function handleDeleteAccount() {
+    axios.delete(names.getReportByUserID + currentUserID);
+    axios.delete(names.getMessageByUserID + currentUserID);
+    axios.delete(names.getFriendByUserID + currentUserID);
+    axios.delete(names.getCalendarByUserID + currentUserID);
+    axios.delete(names.getActionByUserID + currentUserID);
+    axios.delete(names.getChatByUserID + currentUserID);
+    axios.delete(names.getProfileByUserID + currentUserID);
+    axios.delete(names.getUserByID + currentUserID);
+
+    //Success Alert
+    toast.success('Delete Successful~', {
+      position: 'top-center',
+      autoClose: 2000,
+      hideProgressBar: true,
+      style: {
+        backgroundColor: names.BoxBackgroundColor,
+        color: names.TextColor,
+        borderRadius: '8px',
+      },
+    });
+
+    setTimeout(() => {
+      navigate('/');
+      refreshPage(2);
+    }, 2000);
   }
 
   return <div>
@@ -120,29 +146,49 @@ const Profile = () => {
           <Grid size={4}>
             <Button onClick={handleOpenDelete} fullWidth sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: names.ButtonColor, color: 'whitesmoke' }}>Delete Account</Button>
             <Modal open={openDelete} onClose={handleCloseDelete} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
-                <Box sx={modalStyle}>
-                  <Typography id="modal-modal-title" variant="h4" component="h2" sx={{ textAlign: 'center', marginBottom: 4, color: 'red' }}>
-                    DELETE YOUR ACCOUNT?
-                  </Typography>
-                  <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                    {/* <EditInform add={changeInform} /> */}
-                  </Typography>
-                </Box>
-              </Modal>
+              <Box sx={modalStyle}>
+                <Typography id="modal-modal-title" variant="h4" component="h2" sx={{ textAlign: 'center', marginBottom: 4, color: 'red' }}>
+                  DELETE YOUR ACCOUNT?
+                </Typography>
+                <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+
+                  <Grid size={12} sx={{ color: 'black' }}>
+                    <Typography>
+                      The Account Will Be <b>PERMENENTLY DELETE</b> And It Will Not Be Able To Recover Back, Are You Sure You Wanted To Delete Your Account.
+                    </Typography>
+                  </Grid>
+
+                  <br />
+                  <br />
+
+                  <Grid size={6}>
+                    <Button onClick={handleDeleteAccount} variant="contained" fullWidth sx={{ padding: '10px', backgroundColor: names.DeleteButton, marginBottom: '2%' }}>
+                      Delete
+                    </Button>
+                  </Grid>
+                  <Grid size={6}>
+                    <Button onClick={handleCloseDelete} variant="contained" fullWidth sx={{ padding: '10px', backgroundColor: names.ButtonColor }}>
+                      Cancel
+                    </Button>
+                  </Grid>
+
+                </Typography>
+              </Box>
+            </Modal>
           </Grid>
 
           <Grid size={4}>
-              <Button onClick={handleOpenEdit} fullWidth sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: names.ButtonColor, color: 'whitesmoke' }}>Edit</Button>
-              <Modal open={openEdit} onClose={handleCloseEdit} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
-                <Box sx={modalStyle}>
-                  <Typography id="modal-modal-title" variant="h5" component="h2" sx={{ textAlign: 'center', marginBottom: 4, color: 'black' }}>
-                    Edit Your Profile Detail
-                  </Typography>
-                  <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                    <EditProfile add={changeInform} name={userProfileData.name} bio={userProfileData.bio} photo={userProfileData.photo} onlineStatus={userProfileData.onlineStatus} />
-                  </Typography>
-                </Box>
-              </Modal>
+            <Button onClick={handleOpenEdit} fullWidth sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: names.ButtonColor, color: 'whitesmoke' }}>Edit</Button>
+            <Modal open={openEdit} onClose={handleCloseEdit} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+              <Box sx={modalStyle}>
+                <Typography id="modal-modal-title" variant="h5" component="h2" sx={{ textAlign: 'center', marginBottom: 4, color: 'black' }}>
+                  Edit Your Profile Detail
+                </Typography>
+                <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                  <EditProfile profileID={userProfileData.profileID} name={userProfileData.name} bio={userProfileData.bio} photo={userProfileData.photo} onlineStatus={userProfileData.onlineStatus} themeID={userProfileData.themeID} userID={userProfileData.userID} />
+                </Typography>
+              </Box>
+            </Modal>
           </Grid>
 
           <Grid size={4}>
@@ -153,6 +199,7 @@ const Profile = () => {
             {BottomMenuBar(userInformationList, "profile", userProfileData.photo, userProfileData.name)}
           </Grid>
         </Grid>
+        <ToastContainer />
       </Paper>
     </Box>
   </div>

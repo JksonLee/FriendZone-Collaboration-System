@@ -1,18 +1,20 @@
 import { Button, TextField, CircularProgress, Select, MenuItem } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import names from '../General/Component';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { refreshPage } from '../General/Functions';
 
 interface ProfileRegisterForm {
     name: string;
     photo: string;
     bio: string;
     onlineStatus: string;
+    themeID: number;
 }
 
 interface UserInformation2 {
@@ -34,10 +36,11 @@ interface ErrorMessage {
 }
 
 
-const EditProfile: React.FC<any> = ({ add, name, bio, photo, onlineStatus }) => {
+const EditProfile: React.FC<any> = ({ profileID, name, bio, photo, onlineStatus, themeID, userID }) => {
     //Catch The Data
-    const { control, handleSubmit, formState: { errors } } = useForm<ProfileRegisterForm>();
+    const { control, handleSubmit, setValue, formState: { errors } } = useForm<ProfileRegisterForm>();
     const [imageBase64, setImageBase64] = useState<string | null>(null);
+    const [theme, setTheme] = useState<any>([]);
     const [error, setError] = useState<string>('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -46,7 +49,26 @@ const EditProfile: React.FC<any> = ({ add, name, bio, photo, onlineStatus }) => 
     let actionInformation: ActionInformation;
     const now = new Date();
 
-    console.log(name, bio, photo);
+    // useEffect(() => {
+
+    //     setValue('name', name);
+    //     setValue('photo', bio);
+    //     setValue('bio', photo);
+    //     setValue('onlineStatus', onlineStatus);
+
+    // }, []);
+
+    //Catch Theme From DB
+    function catchTheme() {
+        axios.get(names.basicThemeAPI).then((response) => {
+            setTheme(response.data);
+        });
+    }
+
+    useEffect(() => {
+        catchTheme();
+    }, []);
+
 
     //Change Image Into Base64
     function handleChange(e: any) {
@@ -73,86 +95,91 @@ const EditProfile: React.FC<any> = ({ add, name, bio, photo, onlineStatus }) => 
     const onSubmit = async (data: ProfileRegisterForm) => {
         setLoading(true);
 
-        if (!imageBase64) {
-            setError('No image selected');
-            return;
+        if (imageBase64 == null || imageBase64 == undefined) {
+            const updateInformation = { profileID: profileID, name: data.name, photo: photo, bio: data.bio, onlineStatus: data.onlineStatus, userID: userID, themeID: data.themeID };
+
+            axios.put(names.basicProfileAPI, updateInformation);
+
+            axios.get(names.getThemeByID + updateInformation.themeID).then((response) => {
+                setTimeout(() => {
+                    setLoading(false);
+                }, 1500);
+
+                userInformation = { currentUserID: updateInformation.userID, theme: response.data.source, themeID: updateInformation.themeID }
+                navigate('/Profile', { state: userInformation });
+                refreshPage(2);
+            });
+
+
+        } else if (imageBase64 !== null || imageBase64 !== undefined) {
+            const updateInformation = { profileID: profileID, name: data.name, photo: imageBase64, bio: data.bio, onlineStatus: data.onlineStatus, userID: userID, themeID: data.themeID };
+
+            axios.put(names.basicProfileAPI, updateInformation);
+
+            axios.get(names.getThemeByID + updateInformation.themeID).then((response) => {
+                setTimeout(() => {
+                    setLoading(false);
+                }, 1500);
+
+                userInformation = { currentUserID: updateInformation.userID, theme: response.data.source, themeID: updateInformation.themeID }
+                navigate('/Profile', { state: userInformation });
+                refreshPage(2);
+            });
+        } else {
+            setTimeout(() => {
+                setLoading(false);
+            }, 1500);
+
+            //Redirect User To Error Page
+            errorMessage = { errorMessage: "Edit Profile Have Error, Please Try Again~", page: "Profile" };
+            navigate('/ErrorPage', { state: errorMessage });
         }
-
-        // axios.post(names.basicUserAPI, finalUserRegisterInform).then((response) => {
-        //     if (response.status === 200) {
-        //         setTimeout(() => {
-        //             setLoading(false);
-        //         }, 1500);
-
-        //         //Success Alert
-        //         toast.success('Registration Successful~', {
-        //             position: 'top-center',
-        //             autoClose: 5000,
-        //             hideProgressBar: true,
-        //             style: {
-        //                 backgroundColor: names.BoxBackgroundColor,
-        //                 color: names.TextColor,
-        //                 borderRadius: '8px',
-        //             },
-        //         });
-
-        //         const currentDate = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
-
-        //         const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
-
-
-        //         actionInformation = { name: "Edit Profile", date: currentDate, time: currentTime, userID: userInformation.currentUserID };
-
-        //         axios.post(names.basicProfileAPI, actionInformation);
-
-        //         // Redirect Automatically
-        //         setTimeout(() => {
-        //             navigate('/Home', { state: userInformation });
-        //         }, 3000);
-
-        //     } else {
-        //         setTimeout(() => {
-        //             setLoading(false);
-        //         }, 1500);
-
-        //         //Redirect User To Error Page
-        //         errorMessage = { errorMessage: "Register Have Error, Please Try Again~", page: "Register" };
-        //         navigate('/ErrorPage', { state: errorMessage });
-        //     }
-        // });
     };
 
 
     return <div>
         <form onSubmit={handleSubmit(onSubmit)}>
             {/* Name Field */}
-            <Grid size={12} sx={{marginBottom: '3%'}}>
-                <Controller name="name" control={control} rules={{ required: 'Name is required', pattern: { value: /^[a-zA-Z0-9_]{2,}$/, message: 'Invalid name format, only accept alphabet, number and underscroll' } }}
+            <Grid size={12} sx={{ marginBottom: '3%' }}>
+                <Controller name="name" control={control} defaultValue={name} rules={{ required: 'Name is required', pattern: { value: /^[a-zA-Z0-9_]{2,}$/, message: 'Invalid name format, only accept alphabet, number and underscroll' } }}
                     render={({ field }) => (
-                        <TextField {...field} value={name} label="Name" fullWidth variant="outlined" error={!!errors.name} helperText={errors.name?.message} />)} />
+                        <TextField {...field} label="Name" fullWidth variant="outlined" error={!!errors.name} helperText={errors.name?.message} />)} />
             </Grid>
 
             {/* Bio Field */}
-            <Grid size={12} sx={{marginBottom: '3%'}}>
-                <Controller name="bio" control={control} rules={{ required: 'Bio is required' }}
+            <Grid size={12} sx={{ marginBottom: '3%' }}>
+                <Controller name="bio" control={control} defaultValue={bio} rules={{ required: 'Bio is required' }}
                     render={({ field }) => (
-                        <TextField {...field} value={bio} label="Bio (Maximum 100 Characters)" fullWidth multiline variant="outlined" inputProps={{ maxLength: 100 }} error={!!errors.bio} helperText={errors.bio?.message} />)} />
+                        <TextField {...field} label="Bio (Maximum 100 Characters)" fullWidth multiline variant="outlined" inputProps={{ maxLength: 100 }} error={!!errors.bio} helperText={errors.bio?.message} />)} />
+            </Grid>
+
+            {/* Photo Field */}
+            <Grid size={12} sx={{ marginBottom: '3%' }}>
+                <TextField onChange={handleChange} type="file" fullWidth variant="outlined" />
+                {error && <p style={{ color: 'red' }}>{error}</p>}
             </Grid>
 
             {/* Online Status Field */}
-            <Grid size={12} sx={{marginBottom: '3%'}}>
+            <Grid size={12} sx={{ marginBottom: '3%' }}>
                 <Controller name="onlineStatus" control={control} defaultValue={onlineStatus} rules={{ required: 'Online Status is required' }}
                     render={({ field }) => (
-                        <Select
-                        {...field}
-                            labelId="onlineStatus"
-                            id="onlineStatus"
-                            label="Select an Online Option"
-                            fullWidth
-                        >
+                        <Select {...field} labelId="onlineStatus" id="onlineStatus" label="Select an Online Option" fullWidth >
                             <MenuItem value="Online">Online</MenuItem>
                             <MenuItem value="Offline">Offline</MenuItem>
-                        </Select> )} />
+                        </Select>)} />
+            </Grid>
+
+            {/* Theme Field */}
+            <Grid size={12} sx={{ marginBottom: '3%' }}>
+                <Controller name="themeID" control={control} defaultValue={themeID} rules={{ required: 'Online Status is required' }}
+                    render={({ field }) => (
+                        <Select {...field} labelId="themeID" id="themeID" label="Select an Theme Option" fullWidth >
+                            {theme.map((record: any) => (
+                                <MenuItem value={record.themeID}>
+                                    {record.name}
+                                </MenuItem>
+                            ))}
+                        </Select>)} />
             </Grid>
 
             {/* Submit Button */}
