@@ -71,7 +71,7 @@ const Login: React.FC = () => {
 
               actionInformation = { name: "Login", date: currentDate, time: currentTime, userID: userID };
 
-              // axios.post(names.basicActionAPI, actionInformation);
+              axios.post(names.basicActionAPI, actionInformation);
 
               userInformation = { currentUserID: userID, theme: response.data.source, themeID: response.data.themeID };
               navigate('/Home', { state: userInformation });

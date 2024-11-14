@@ -23,9 +23,6 @@ const Home = () => {
   const userInformationList = { currentUserID, theme, themeID };
   const [userProfileData, setUserProfileData] = useState<any>([]);
 
-  // Update the CSS variable dynamically
-  document.documentElement.style.setProperty('--backgroundImage', `url('${state.theme}')`);
-
   // Catch Data From DB
   function getUserData() {
     axios.get(names.getProfileByUserID + currentUserID).then((response) => {
@@ -35,6 +32,9 @@ const Home = () => {
 
   useEffect(() => {
     getUserData()
+
+    // Update the CSS variable dynamically
+    document.documentElement.style.setProperty('--backgroundImage', `url('${state.theme}')`);
   }, []);
 
   return <div>

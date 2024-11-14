@@ -38,7 +38,7 @@ interface ErrorMessage {
 
 const EditProfile: React.FC<any> = ({ profileID, name, bio, photo, onlineStatus, themeID, userID }) => {
     //Catch The Data
-    const { control, handleSubmit, setValue, formState: { errors } } = useForm<ProfileRegisterForm>();
+    const { control, handleSubmit, formState: { errors } } = useForm<ProfileRegisterForm>();
     const [imageBase64, setImageBase64] = useState<string | null>(null);
     const [theme, setTheme] = useState<any>([]);
     const [error, setError] = useState<string>('');
@@ -99,6 +99,16 @@ const EditProfile: React.FC<any> = ({ profileID, name, bio, photo, onlineStatus,
             const updateInformation = { profileID: profileID, name: data.name, photo: photo, bio: data.bio, onlineStatus: data.onlineStatus, userID: userID, themeID: data.themeID };
 
             axios.put(names.basicProfileAPI, updateInformation);
+
+            axios.get(names.getFriendByUserName + name).then((response) => {
+                let friendListByName:any = response.data;
+
+                friendListByName.forEach((element:any) => {
+                    let friendDetail = {friendID: element.friendID, name: updateInformation.name, position: element.position, status: element.status, profileID: element.profileID, userID: element.userID}
+
+                    axios.put(names.basicFriendAPI, friendDetail);
+                });
+            })
 
             axios.get(names.getThemeByID + updateInformation.themeID).then((response) => {
                 setTimeout(() => {

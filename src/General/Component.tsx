@@ -26,6 +26,7 @@ const names = {
 
   //Profile DB
   basicProfileAPI: `http://localhost:7121/api/Profile`,
+  getProfileByID: `http://localhost:7121/api/Profile/`,
   getProfileByUserID: `http://localhost:7121/api/Profile/userID/`,
   getProfileByUserName: `http://localhost:7121/api/Profile/userName/`,
 
@@ -44,6 +45,7 @@ const names = {
   //Friend DB
   basicFriendAPI: `http://localhost:7121/api/Friend`,
   getFriendByUserID: `http://localhost:7121/api/Friend/userID/`,
+  getFriendByUserName: `http://localhost:7121/api/Friend/userName/`,
 
   //Chat DB
   basicChatAPI: `http://localhost:7121/api/Chat`,

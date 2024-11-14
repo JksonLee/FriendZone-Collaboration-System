@@ -59,9 +59,9 @@ const FriendList = () => {
   function catchFriendDetail() {
     userFriendData.forEach((friend: any) => {
       if (friend.status !== "Pending") {
-        axios.get(names.getProfileByUserName + friend.name).then((response) => {
+        let friendID: number = friend.friendID;
+        axios.get(names.getProfileByID + friend.profileID).then((response) => {
           if (response.status === 200) {
-            let friendID: number = response.data.userID;
             //Set All Record Friend Photo
             setFriendProfileDetail(prev => new Map(prev).set(friendID, response.data));
 
@@ -90,10 +90,7 @@ const FriendList = () => {
   useEffect(() => {
     catchFriendDetail();
   }, [userFriendData]);
-
-  console.log(friendProfileDetail);
-  console.log(friendThemeDetail);
-  console.log(userFriendData);
+  
 
   return <div>
     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '97vh' }}>
@@ -112,7 +109,7 @@ const FriendList = () => {
                   if (friend.status !== "Pending") {
                     return <div>
                       <ListItem key={friend.friendID}>
-                        <Paper sx={{ marginBottom: 2, padding: 2, width: 1000, backgroundImage: `url('${friendThemeDetail.get(friend.friendID)?.source}')`, backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundAttachment: 'fixed', color: 'black', borderRadius: '40px' , maxHeight: '60px'}}>
+                        <Paper sx={{ marginBottom: 2, padding: 2, width: 1000, backgroundImage: `url('${friendThemeDetail.get(friend.friendID)?.source}')`, backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundPosition: 'center', color: 'black', borderRadius: '40px' , maxHeight: '60px'}}>
                           <Grid container spacing={2} alignItems="center">
                             <Grid size={2} >
                               <Avatar alt={friendProfileDetail.get(friend.friendID)?.name} src={friendProfileDetail.get(friend.friendID)?.photo} sx={{ width: 55, height: 55, alignItems: 'center', border: '5px solid', borderColor: checkOnlineStatus(friendProfileDetail.get(friend.friendID)?.onlineStatus)}}/>
@@ -122,7 +119,7 @@ const FriendList = () => {
                               <Typography variant="h5" sx={{ fontSize: '20px' }}><i>{friend.position}</i></Typography>
                             </Grid>
                             <Grid size={3}>
-
+                              
                             </Grid>
                           </Grid>
                         </Paper>

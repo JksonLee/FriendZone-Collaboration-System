@@ -51,8 +51,6 @@ const RegisterProfile: React.FC = () => {
   const { control, handleSubmit, formState: { errors } } = useForm<ProfileRegisterForm>();
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [error, setError] = useState<string>('');
-  const [themeSource, setThemeSource] = useState<any>();
-  const [themeId, setThemeId] = useState<number>(1);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate()
   const steps = [
@@ -132,28 +130,13 @@ const RegisterProfile: React.FC = () => {
               userID: userId,
               themeID: response.data.themeID,
             }
-            setThemeSource(response.data.themeSource);
-            setThemeId(response.data.themeID);
+            let themeSource: string = response.data.source;
+            let themeId: number = response.data.themeID;
+
+            userInformation = { currentUserID: finalDataList.userID, theme: themeSource, themeID: themeId };
 
             axios.post(names.basicProfileAPI, finalDataList).then((response) => {
               if (response.status === 200) {
-                setTimeout(() => {
-                  setLoading(false);
-                }, 1500);
-
-                //Success Alert
-                toast.success('Registration Successful~', {
-                  position: 'top-center',
-                  autoClose: 5000,
-                  hideProgressBar: true,
-                  style: {
-                    backgroundColor: names.BoxBackgroundColor,
-                    color: names.TextColor,
-                    borderRadius: '8px',
-                  },
-                });
-
-                userInformation = { currentUserID: finalDataList.userID, theme: themeSource, themeID: themeId };
 
                 const currentDate = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
 
@@ -162,10 +145,27 @@ const RegisterProfile: React.FC = () => {
 
                 actionInformation = { name: "Register Account", date: currentDate, time: currentTime, userID: userInformation.currentUserID };
 
-                axios.post(names.basicProfileAPI, actionInformation).then((response) => {
+                axios.post(names.basicActionAPI, actionInformation).then((response) => {
                   if (response.status === 200) {
+                    setTimeout(() => {
+                      setLoading(false);
+                    }, 1500);
+
+                    //Success Alert
+                    toast.success('Registration Successful~', {
+                      position: 'top-center',
+                      autoClose: 3000,
+                      hideProgressBar: true,
+                      style: {
+                        backgroundColor: names.BoxBackgroundColor,
+                        color: names.TextColor,
+                        borderRadius: '8px',
+                      },
+                    });
+
                     // Redirect Automatically
                     setTimeout(() => {
+                      console.log(userInformation);
                       navigate('/Home', { state: userInformation });
                     }, 3000);
                   } else {
@@ -178,12 +178,6 @@ const RegisterProfile: React.FC = () => {
                     navigate('/ErrorPage', { state: errorMessage });
                   }
                 });
-
-                // Redirect Automatically
-                setTimeout(() => {
-                  navigate('/Home', { state: userInformation });
-                }, 3000);
-
               } else {
                 setTimeout(() => {
                   setLoading(false);
@@ -193,7 +187,6 @@ const RegisterProfile: React.FC = () => {
                 errorMessage = { errorMessage: "Register Have Error, Please Try Again~", page: "Register" };
                 navigate('/ErrorPage', { state: errorMessage });
               }
-
             });
           });
         });
