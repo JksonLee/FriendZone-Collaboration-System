@@ -78,8 +78,6 @@ const Profile = () => {
     checkOnlineStatus();
   }, []);
 
-  console.log(isOnline, userProfileData.onlineStatus)
-
   function handleLogOut() {
     navigate('/');
     refreshPage(2);
@@ -122,11 +120,7 @@ const Profile = () => {
           {/* Icon */}
           <Grid size={5}></Grid>
           <Grid size={2}>
-            <Avatar src={userProfileData.photo} sx={{
-              width: 170, height: 170, alignItems: 'center', marginTop: '-68%',
-              border: '8px solid', // Border width
-              borderColor: isOnline ? 'green' : 'gray', // Border color (green if online, gray if offline)
-            }} />
+            <Avatar src={userProfileData.photo} sx={{ width: 170, height: 170, alignItems: 'center', marginTop: '-68%', border: '8px solid', borderColor: isOnline ? 'green' : 'gray'}} />
           </Grid>
           <Grid size={5}></Grid>
 
