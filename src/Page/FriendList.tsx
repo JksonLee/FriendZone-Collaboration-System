@@ -62,11 +62,9 @@ const FriendList = () => {
         let friendID: number = friend.friendID;
         axios.get(names.getProfileByID + friend.profileID).then((response) => {
           if (response.status === 200) {
-            //Set All Record Friend Photo
             setFriendProfileDetail(prev => new Map(prev).set(friendID, response.data));
 
             axios.get(names.getThemeByID + response.data.themeID).then((response) => {
-              //Set All Record Friend Photo
               setFriendThemeDetail(prev => new Map(prev).set(friendID, response.data));
             })
           }
@@ -99,11 +97,9 @@ const FriendList = () => {
 
         <Grid container spacing={2}>
           <Grid size={12} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Paper
-              sx={{
+            <Paper sx={{
                 width: 1070, maxHeight: '320px', overflowY: 'auto', padding: 2, backgroundColor: 'transparent', boxShadow: 'none',
-                '&::-webkit-scrollbar': { width: '8px' }, '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1', borderRadius: '10px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#888', borderRadius: '10px', '&:hover': { backgroundColor: '#555' } }
-              }}>
+                '&::-webkit-scrollbar': { width: '8px' }, '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1', borderRadius: '10px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#888', borderRadius: '10px', '&:hover': { backgroundColor: '#555' } }}}>
               <List>
                 {userFriendData.map((friend: any) => {
                   if (friend.status !== "Pending") {
@@ -118,19 +114,20 @@ const FriendList = () => {
                               <Typography variant="h4" sx={{ fontSize: '30px' }}><strong>{friend.name}</strong></Typography>
                               <Typography variant="h5" sx={{ fontSize: '20px' }}><i>{friend.position}</i></Typography>
                             </Grid>
-                            <Grid size={3}>
-                              
+                            <Grid size={5}>
+                            </Grid>
+                            <Grid size={1}>
+
+                            </Grid>
+                            <Grid size={1}>
+
                             </Grid>
                           </Grid>
                         </Paper>
-                        {/* <ListItemText primary={friend.name} /> */}
                       </ListItem>
                     </div>
                   }
                 })}
-                {/* <Typography variant="body1" color="textSecondary">
-                  No records found.
-                </Typography> */}
               </List>
             </Paper>
           </Grid>

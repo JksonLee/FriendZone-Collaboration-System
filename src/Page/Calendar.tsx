@@ -31,6 +31,10 @@ const Calendar = () => {
     axios.get(names.getProfileByUserID + currentUserID).then((response) => {
       setUserProfileData(response.data);
     });
+
+    axios.get(names.getCalendarByUserID + currentUserID).then(response => {
+      
+    })
   }
 
   useEffect(() => {
@@ -45,7 +49,7 @@ const Calendar = () => {
         <Typography variant="h4" gutterBottom sx={{ marginBottom: '5%' }}>
           <b>Calendar</b>
         </Typography>
-
+        
         <Grid container spacing={2}>
           <Grid size={12}>
 

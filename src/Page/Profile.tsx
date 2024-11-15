@@ -17,6 +17,13 @@ interface UserInformation {
   themeID: number;
 }
 
+interface ActionInformation {
+  name: string;
+  date: any;
+  time: any;
+  userID: number;
+}
+
 const Profile = () => {
   //Catch The Data
   const location = useLocation();
@@ -35,6 +42,8 @@ const Profile = () => {
   const handleOpenDelete = () => setOpenDelete(true);
   const handleCloseDelete = () => setOpenDelete(false);
   const navigate = useNavigate();
+  let actionInformation: ActionInformation;
+  const now = new Date();
 
   //Background Modal Design
   const modalStyle = {
@@ -79,6 +88,15 @@ const Profile = () => {
   }, []);
 
   function handleLogOut() {
+    const currentDate = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
+
+    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+
+
+    actionInformation = { name: "Logout", date: currentDate, time: currentTime, userID: currentUserID };
+
+    axios.post(names.basicActionAPI, actionInformation);
+
     navigate('/');
     refreshPage(2);
   }
@@ -120,7 +138,7 @@ const Profile = () => {
           {/* Icon */}
           <Grid size={5}></Grid>
           <Grid size={2}>
-            <Avatar src={userProfileData.photo} sx={{ width: 170, height: 170, alignItems: 'center', marginTop: '-68%', border: '8px solid', borderColor: isOnline ? 'green' : 'gray'}} />
+            <Avatar src={userProfileData.photo} sx={{ width: 170, height: 170, alignItems: 'center', marginTop: '-68%', border: '8px solid', borderColor: isOnline ? 'green' : 'gray' }} />
           </Grid>
           <Grid size={5}></Grid>
 
