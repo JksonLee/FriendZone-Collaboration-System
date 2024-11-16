@@ -165,7 +165,6 @@ const RegisterProfile: React.FC = () => {
 
                     // Redirect Automatically
                     setTimeout(() => {
-                      console.log(userInformation);
                       navigate('/Home', { state: userInformation });
                     }, 3000);
                   } else {

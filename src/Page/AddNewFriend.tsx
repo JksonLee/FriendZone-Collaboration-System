@@ -1,11 +1,13 @@
 import '../CSS/Home.css'
 import names from '../General/Component';
-import { Avatar, Box, Button, CircularProgress, List, ListItem, ListItemText, Paper, TextField, Typography } from '@mui/material';
+import { Avatar, Box, Button, CircularProgress, List, ListItem, Paper, TextField, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { useLocation } from 'react-router-dom';
 import BottomMenuBar from '../General/BottomMenuBar';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { refreshPage } from '../General/Functions';
+import { toast, ToastContainer } from 'react-toastify';
 
 interface UserInformation {
   currentUserID: number;
@@ -38,35 +40,30 @@ const AddNewFriend = () => {
   const themeID = state.themeID;
   const userInformationList = { currentUserID, theme, themeID };
   const [userProfileData, setUserProfileData] = useState<any>([]);
-
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [allProfileList, setAllProfileList] = useState<ProfileList[]>([]);
   const [filteredAllProfileList, setFilteredAllProfileList] = useState<ProfileList[]>([]);
-  const [finalFilteredAllProfileList, setFinalFilteredAllProfileList] = useState<ProfileList[]>([]);
+  const [currentFriendList, setCurrentFriendList] = useState<any>([]);
   const [friendThemeDetail, setFriendThemeDetail] = useState<Map<number, ThemeDetail>>(new Map());
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading] = useState<boolean>(false);
 
   // Update the CSS variable dynamically
   document.documentElement.style.setProperty('--backgroundImage', `url('${state.theme}')`);
 
   // Catch Data From DB
   function getUserData() {
-    axios.get(names.getProfileByUserID + currentUserID).then((response) => {
-      setUserProfileData(response.data);
-    });
-
     axios.get(names.basicProfileAPI).then((response) => {
       setAllProfileList(response.data);
       setFilteredAllProfileList(response.data);
     })
-  }
 
-  function catchAllProfileListDetail() {
-    filteredAllProfileList.forEach((profile: any) => {
-      axios.get(names.getThemeByID + profile.themeID).then((response) => {
-        setFriendThemeDetail(prev => new Map(prev).set(profile.profileID, response.data));
-      })
+    axios.get(names.getFriendByUserID + currentUserID).then((response) => {
+      setCurrentFriendList(response.data);
     })
+
+    axios.get(names.getProfileByUserID + currentUserID).then((response) => {
+      setUserProfileData(response.data);
+    });
   }
 
   useEffect(() => {
@@ -74,8 +71,33 @@ const AddNewFriend = () => {
   }, []);
 
   useEffect(() => {
+    filterAllProfileListDetail();
+  }, [userProfileData]);
+
+  useEffect(() => {
     catchAllProfileListDetail();
   }, [filteredAllProfileList]);
+
+  function filterAllProfileListDetail() {
+    const currentFriendIDList = new Set(currentFriendList.map((item: any) => item.profileID));
+
+    const remindingFriendList = filteredAllProfileList.filter(item => !currentFriendIDList.has(item.profileID));
+
+    const finalFriendList = remindingFriendList.filter(item => item.userID !== currentUserID);
+
+    setAllProfileList(finalFriendList)
+    setFilteredAllProfileList(finalFriendList);
+  }
+
+  function catchAllProfileListDetail() {
+    if (filteredAllProfileList !== null || filteredAllProfileList !== undefined) {
+      filteredAllProfileList.forEach((profile: any) => {
+        axios.get(names.getThemeByID + profile.themeID).then((response) => {
+          setFriendThemeDetail(prev => new Map(prev).set(profile.profileID, response.data));
+        })
+      })
+    }
+  }
 
   function checkOnlineStatus(onlineStatus: any) {
     if (onlineStatus === "Offline") {
@@ -84,8 +106,6 @@ const AddNewFriend = () => {
       return 'green'
     }
   }
-
-  console.log(friendThemeDetail);
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value;
@@ -98,8 +118,27 @@ const AddNewFriend = () => {
   };
 
   const handleAddFriend = (friend: ProfileList) => {
-    console.log('Add friend:', friend);
-    // You could make an API request here to add a friend
+    toast.success('Add Friend Successful~', {
+      position: 'top-center',
+      autoClose: 3000,
+      hideProgressBar: true,
+      style: {
+        backgroundColor: names.BoxBackgroundColor,
+        color: names.TextColor,
+        borderRadius: '8px',
+      },
+    });
+
+    axios.get(names.getProfileByUserID + currentUserID).then((response) => {
+      const newFriendForOnwer = { name: friend.name, position: "Friend", status: "Waiting", profileID: friend.profileID, userID: currentUserID };
+      axios.post(names.basicFriendAPI, newFriendForOnwer);
+      const newFriendForOther = { name: response.data.name, position: "Friend", status: "Pending", profileID: response.data.profileID, userID: friend.userID };
+      axios.post(names.basicFriendAPI, newFriendForOther);
+    })
+
+    setTimeout(() => {
+      refreshPage(20)
+    }, 900);
   };
 
   return <div>
@@ -147,7 +186,7 @@ const AddNewFriend = () => {
               </List>
             </Paper>
             )}
-
+          <ToastContainer />
           <Grid size={12} sx={{ marginBottom: '-1.5%' }}>
             {BottomMenuBar(userInformationList, "search", userProfileData.photo, userProfileData.name)}
           </Grid>

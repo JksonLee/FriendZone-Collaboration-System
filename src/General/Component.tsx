@@ -44,6 +44,7 @@ const names = {
 
   //Friend DB
   basicFriendAPI: `http://localhost:7121/api/Friend`,
+  getFriendByID: `http://localhost:7121/api/Friend/`,
   getFriendByUserID: `http://localhost:7121/api/Friend/userID/`,
   getFriendByUserName: `http://localhost:7121/api/Friend/userName/`,
 
