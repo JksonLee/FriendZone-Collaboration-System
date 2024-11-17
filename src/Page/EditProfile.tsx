@@ -23,13 +23,6 @@ interface UserInformation2 {
     themeID: number;
 }
 
-interface ActionInformation {
-    name: string;
-    date: any;
-    time: any;
-    userID: number;
-}
-
 interface ErrorMessage {
     errorMessage: string;
     page: string;
@@ -46,17 +39,6 @@ const EditProfile: React.FC<any> = ({ profileID, name, bio, photo, onlineStatus,
     const navigate = useNavigate();
     let errorMessage: ErrorMessage;
     let userInformation: UserInformation2;
-    let actionInformation: ActionInformation;
-    const now = new Date();
-
-    // useEffect(() => {
-
-    //     setValue('name', name);
-    //     setValue('photo', bio);
-    //     setValue('bio', photo);
-    //     setValue('onlineStatus', onlineStatus);
-
-    // }, []);
 
     //Catch Theme From DB
     function catchTheme() {

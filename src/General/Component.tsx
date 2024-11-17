@@ -1,6 +1,7 @@
 const names = {
   //Button
   ButtonColor: 'rgba(105, 105, 105, 0.5)',
+  EditButton: 'rgba(70, 130, 180, 0.5)',
   DeleteButton: 'rgba(255, 0, 0, 0.5)',
 
   //Box

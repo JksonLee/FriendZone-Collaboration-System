@@ -2,7 +2,7 @@ import '../CSS/Home.css'
 import names from '../General/Component';
 import { Avatar, Box, Button, List, ListItem, Paper, Tab, Tabs, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import BottomMenuBar from '../General/BottomMenuBar';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -49,6 +49,8 @@ const FriendList = () => {
   const [pendingThemeDetail, setPendingThemeDetail] = useState<Map<number, ThemeDetail>>(new Map());
   const [pendingProfileDetail, setPendingProfileDetail] = useState<Map<number, ProfileDetail>>(new Map());
   const [value, setValue] = useState(1);
+  const navigate = useNavigate();
+  const currentDateTime = new Date();
 
   // Update the CSS variable dynamically
   document.documentElement.style.setProperty('--backgroundImage', `url('${state.theme}')`);
@@ -170,7 +172,7 @@ const FriendList = () => {
     }, 900);
   }
 
-  // Handle Accept Friend
+  // Handle Reject Friend
   const handleRejectFriend = (friend: any) => {
     toast.success('Reject Friend Successful~', {
       position: 'top-center',
@@ -200,6 +202,55 @@ const FriendList = () => {
     setTimeout(() => {
       refreshPage(20)
     }, 900);
+  }
+
+  // Handle Chat Friend
+  const handleChatFriend = (friend: any) => {
+    axios.get(names.getProfileByID + friend.profileID).then((response) => {
+      let friendUserID = response.data.userID.toString();
+      let roleExist = "false";
+
+      axios.get(names.getChatByUserID + currentUserID).then((response) => {
+        if (response.status === 200) {
+          (response.data).forEach((element: any) => {
+            if (element.admin === currentUserID.toString() && element.member === friendUserID && element.chatRole === "Individual") {
+              roleExist = "true";
+            }
+          });
+          if (roleExist === "true") {
+          } else if (roleExist === "false") {
+            const formattedDate = currentDateTime.toLocaleString();
+            const newChatRoom = { name: friend.name, chatRole: "Individual", admin: currentUserID.toString(), member: friendUserID, lastDateTime: formattedDate, status: "Not Pin", userID: currentUserID }
+            axios.post(names.basicChatAPI, newChatRoom);
+          }
+        }
+      })
+    })
+
+    navigate('/Home', { state: userInformationList });
+    refreshPage(2)
+  }
+
+  // Handle Edit Friend
+  const handleEditFriend = (friend: any) => {
+    axios.get(names.getProfileByID + friend.profileID).then((response) => {
+      axios.get(names.getThemeByID + response.data.themeID).then((response) => {
+        const detailInformation = {
+          currentUserID: currentUserID,
+          theme: theme,
+          themeID: themeID,
+          friendID: friend.friendID,
+          name: friend.name,
+          position: friend.position,
+          status: friend.status,
+          profileID: friend.profileID,
+          userID: friend.userID,
+          friendThemeSource: response.data.source
+        }
+        navigate('/FriendProfile', { state: detailInformation });
+        refreshPage(2)
+      })
+    })
   }
 
   // Trigger The Function Verytime When The Page Refresh
@@ -246,11 +297,17 @@ const FriendList = () => {
                                 <Typography variant="h4" sx={{ fontSize: '30px' }}><strong>{friend.name}</strong></Typography>
                                 <Typography variant="h5" sx={{ fontSize: '20px' }}><i>{friend.position}</i></Typography>
                               </Grid>
-                              <Grid size={5}>
+                              <Grid size={4}>
                               </Grid>
                               <Grid size={1}>
+                                <Button variant="contained" style={{ backgroundColor: "rgba(105, 105, 105, 0.5)", marginLeft: '35%' }} onClick={() => handleChatFriend(friend)}>
+                                  Chat
+                                </Button>
                               </Grid>
                               <Grid size={1}>
+                                <Button variant="contained" style={{ backgroundColor: "rgba(105, 105, 105, 0.5)", marginLeft: '85%' }} onClick={() => handleEditFriend(friend)}>
+                                  Edit
+                                </Button>
                               </Grid>
                             </Grid>
                           </Paper>
