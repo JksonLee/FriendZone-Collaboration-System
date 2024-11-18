@@ -41,7 +41,7 @@ const names = {
 
   //Message DB
   basicMessageAPI: `http://localhost:7121/api/Message`,
-  getMessageByUserID: `http://localhost:7121/api/Message/userID/`,
+  getMessageByChatID: `http://localhost:7121/api/Message/chatID/`,
 
   //Friend DB
   basicFriendAPI: `http://localhost:7121/api/Friend`,
@@ -52,6 +52,7 @@ const names = {
   //Chat DB
   basicChatAPI: `http://localhost:7121/api/Chat`,
   getChatByUserID: `http://localhost:7121/api/Chat/userID/`,
+  getChatByID: `http://localhost:7121/api/Chat/`,
 
   //Calendar DB
   basicCalendarAPI: `http://localhost:7121/api/Calendar`,

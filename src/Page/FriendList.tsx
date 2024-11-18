@@ -206,29 +206,48 @@ const FriendList = () => {
 
   // Handle Chat Friend
   const handleChatFriend = (friend: any) => {
+    let roleExist = "false";
+    let chatID = 5;
+
     axios.get(names.getProfileByID + friend.profileID).then((response) => {
       let friendUserID = response.data.userID.toString();
-      let roleExist = "false";
 
       axios.get(names.getChatByUserID + currentUserID).then((response) => {
         if (response.status === 200) {
           (response.data).forEach((element: any) => {
-            if (element.admin === currentUserID.toString() && element.member === friendUserID && element.chatRole === "Individual") {
+            if ((element.admin === currentUserID.toString() || element.admin === friendUserID) && (element.member === friendUserID || element.member === currentUserID.toString()) && element.chatRole === "Individual") {
+              console.log("is true")
               roleExist = "true";
+              chatID = element.chatID;
             }
           });
-          if (roleExist === "true") {
-          } else if (roleExist === "false") {
+          if (roleExist !== "true") {
             const formattedDate = currentDateTime.toLocaleString();
-            const newChatRoom = { name: friend.name, chatRole: "Individual", admin: currentUserID.toString(), member: friendUserID, lastDateTime: formattedDate, status: "Not Pin", userID: currentUserID }
-            axios.post(names.basicChatAPI, newChatRoom);
+
+            const newChatRoomOfOwner = { name: friend.name, chatRole: "Individual", admin: currentUserID.toString(), member: friendUserID, lastDateTime: formattedDate, status: "Not Pin", userID: currentUserID }
+            axios.post(names.basicChatAPI, newChatRoomOfOwner);
+
+            const newChatRoomOfOther = { name: currentUserName, chatRole: "Individual", admin: currentUserID.toString(), member: friendUserID, lastDateTime: formattedDate, status: "Not Pin", userID: friendUserID }
+            axios.post(names.basicChatAPI, newChatRoomOfOther);
+
+            //Catch ChatID
+            axios.get(names.getChatByUserID + currentUserID).then((response) => {
+              if (response.status === 200) {
+                (response.data).forEach((element: any) => {
+                  if (element.admin === currentUserID.toString() && element.member === friendUserID && element.chatRole === "Individual") {
+                    chatID = element.chatID;
+                  }
+                });
+              }
+            });
           }
         }
+
+        const userInformation = { currentUserID: userInformationList.currentUserID, theme: userInformationList.theme, themeID: userInformationList.themeID, chatID: chatID }
+
+        navigate('/Home', { state: userInformation });
       })
     })
-
-    navigate('/Home', { state: userInformationList });
-    refreshPage(2)
   }
 
   // Handle Edit Friend
@@ -270,7 +289,7 @@ const FriendList = () => {
         <Grid container spacing={2}>
           <Grid size={12} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Paper sx={{
-              width: 1070, maxHeight: '320px', overflowY: 'auto', padding: 2, backgroundColor: 'transparent', boxShadow: 'none',
+              width: 1070, maxHeight: '420px', overflowY: 'auto', padding: 2, backgroundColor: 'transparent', boxShadow: 'none',
               '&::-webkit-scrollbar': { width: '8px' }, '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1', borderRadius: '10px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#888', borderRadius: '10px', '&:hover': { backgroundColor: '#555' } }
             }}>
 

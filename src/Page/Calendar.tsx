@@ -33,7 +33,7 @@ const Calendar = () => {
     });
 
     axios.get(names.getCalendarByUserID + currentUserID).then(response => {
-      
+
     })
   }
 
@@ -49,17 +49,16 @@ const Calendar = () => {
         <Typography variant="h4" gutterBottom sx={{ marginBottom: '5%' }}>
           <b>Calendar</b>
         </Typography>
-        
+
         <Grid container spacing={2}>
-          <Grid size={12}>
-
-          </Grid>
-
-          <Grid size={12}>
-
-          </Grid>
-
-          <Grid size={12}>
+          <Grid size={12} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Paper
+              sx={{
+                width: 1070, maxHeight: '420px', overflowY: 'auto', padding: 2, backgroundColor: 'transparent', boxShadow: 'none',
+                '&::-webkit-scrollbar': { width: '8px' }, '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1', borderRadius: '10px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#888', borderRadius: '10px', '&:hover': { backgroundColor: '#555' } }
+              }}>
+          
+          </Paper>
 
           </Grid>
 

@@ -56,7 +56,7 @@ const EditFriendProfile: React.FC<any> = ({ detailInformationList }) => {
 
             {/* Submit Button */}
             <Grid size={12}>
-                <Button type="submit" variant="contained" fullWidth disabled={loading} sx={{ padding: '10px', backgroundColor: names.ButtonColor }}>
+                <Button type="submit" variant="contained" fullWidth disabled={loading} sx={{ padding: '10px', backgroundColor: names.EditButton }}>
                     {loading ? <CircularProgress size={24} /> : 'Done Edit'}
                 </Button>
             </Grid>
