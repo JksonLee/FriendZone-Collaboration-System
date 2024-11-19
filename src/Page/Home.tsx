@@ -7,6 +7,8 @@ import BottomMenuBar from '../General/BottomMenuBar';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import ChatBox from './ChatBox';
+import { HubConnectionBuilder } from '@microsoft/signalr';
+import SendMessageForm from './SendMessageForm';
 
 interface UserInformation {
   currentUserID: number;
@@ -31,6 +33,11 @@ interface ProfileDetail {
   themeID: number;
 }
 
+interface Message {
+  user: string;
+  text: string;
+}
+
 const Home = () => {
   //Catch The Data
   const location = useLocation();
@@ -48,10 +55,18 @@ const Home = () => {
   const [value, setValue] = useState(0);
   const [friendValue, setFriendValue] = useState(0);
 
+  const [connection, setConnection] = useState<any>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [newMessage, setNewMessage] = useState<string>('');
+  const [chatUserName, setChatUserName] = useState<any>();
+  const [chatRoom, setChatRoom] = useState<any>("0");
+  const [isJoined, setIsJoined] = useState<boolean>(false);
+
   // Catch Data From DB
   function getUserData() {
     axios.get(names.getProfileByUserID + currentUserID).then((response) => {
       setUserProfileData(response.data);
+      setChatUserName(response.data.name);
     });
 
     axios.get(names.getChatByUserID + currentUserID).then((response) => {
@@ -60,7 +75,6 @@ const Home = () => {
 
     axios.get(names.getChatByID + chatID).then((response) => {
       setSelectedChatData(response.data);
-      setValue(response.data.chatID);
     });
   }
 
@@ -89,11 +103,6 @@ const Home = () => {
     }
   }
 
-  // Handle Header Menu Onchange
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-  };
-
   // Return The Specific Header Menu Option Information
   function CustomTabPanel(props: any) {
     const { children, value, index, ...other } = props;
@@ -102,8 +111,19 @@ const Home = () => {
       <div role="tabpanel" hidden={value !== index} id={`simple-tabpanel-${index}`} aria-labelledby={`simple-tab-${index}`} {...other}>
         {value !== 0 && value === index && <Box sx={{ marginTop: '3%' }}>{children}</Box>}
         {value === 0 && <Box sx={{ marginTop: '3%', textAlign: 'center' }}>
-          <Typography variant="h4"><strong>No Chat Yet</strong></Typography>
+          <Typography variant="h4"><strong>Welcome To FriendZone Collaboration System</strong></Typography>
         </Box>}
+      </div>
+    );
+  }
+
+  function CustomTabPanel2(props: any) {
+    const { children, value, index, ...other } = props;
+
+    return (
+      <div role="tabpanel" hidden={value !== index} id={`simple-tabpanel-${index}`} aria-labelledby={`simple-tab-${index}`} {...other}>
+        {value !== 0 && value === index && <Box sx={{ marginTop: '3%' }}>{children}</Box>}
+        {value === 0 && <Box sx={{ marginTop: '3%', textAlign: 'center' }}></Box>}
       </div>
     );
   }
@@ -113,16 +133,87 @@ const Home = () => {
     setSelectedChatData(chat);
     setValue(chat.chatID);
 
+    axios.get(names.getChatByID + chat.chatID).then((response) => {
+      let adminID: number = parseInt(response.data.admin);
+      axios.get(names.getChatByUserID + adminID).then((response) => {
+        (response.data).forEach((element: any) => {
+          if (element.admin === chat.admin && element.member === chat.member && element.chatRole === chat.chatRole) {
+            let chatID = element.chatID.toString();
+            changeRoom(chatID);
+          }
+        });
+      })
+    })
+
     axios.get(names.getProfileByUserName + chat.name).then((response) => {
       axios.get(names.getChatByUserID + response.data.userID).then((response) => {
-        (response.data).forEach((element:any) => {
-          if(element.name === userProfileData.name){
+        (response.data).forEach((element: any) => {
+          if (element.name === userProfileData.name) {
             setFriendValue(element.chatID);
           }
         });
       })
     })
   }
+
+  //Connect To The SignalR
+  useEffect(() => {
+    const connectSignalR = async () => {
+      const connection = new HubConnectionBuilder()
+        .withUrl('http://localhost:7121/chat')
+        .build();
+
+      connection.on('ReceiveMessage', (user: string, message: string) => {
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { user, text: message },
+        ]);
+      });
+
+      try {
+        await connection.start();
+        setConnection(connection);
+        setIsJoined(true);
+      } catch (err) {
+        console.error('Error while establishing connection: ', err);
+      }
+    };
+
+    connectSignalR();
+
+    // Cleanup the connection on unmount
+    return () => {
+      if (connection) {
+        connection.off('ReceiveMessage');
+        connection.stop();
+      }
+    };
+  }, [chatRoom]);
+
+  // Send a new message to the selected room
+  const sendMessage = async (message: any) => {
+    if (connection && message.trim()) {
+      try {
+        await connection.invoke('SendMessageToRoom', chatRoom, chatUserName, message);
+        setNewMessage('');
+      } catch (err) {
+        console.error('Error sending message: ', err);
+      }
+    }
+  };
+
+  // Change the room and rejoin
+  const changeRoom = async (newRoom: string) => {
+    if (connection) {
+      // Leave the current room
+      await connection.invoke('LeaveRoom', chatRoom);
+      // Join the new room
+      setChatRoom(newRoom);
+      setMessages([]);
+      await connection.invoke('JoinRoom', newRoom);
+      setIsJoined(true);
+    }
+  };
 
   useEffect(() => {
     getUserData()
@@ -135,8 +226,6 @@ const Home = () => {
     catchFriendDetail();
   }, [userChatListData]);
 
-  console.log(selectedChatData);
-
   return <div>
     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '97vh' }}>
 
@@ -144,7 +233,7 @@ const Home = () => {
 
         <Grid container spacing={1}>
           <Grid size={4}>
-            <Paper sx={{ width: 400, maxHeight: '420px', overflowY: 'auto', padding: 2, backgroundColor: 'transparent', boxShadow: 'none', '&::-webkit-scrollbar': { width: '8px' }, '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1', borderRadius: '10px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#888', borderRadius: '10px', '&:hover': { backgroundColor: '#555' } }}}>
+            <Paper sx={{ width: 400, maxHeight: '420px', overflowY: 'auto', padding: 2, backgroundColor: 'transparent', boxShadow: 'none', '&::-webkit-scrollbar': { width: '8px' }, '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1', borderRadius: '10px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#888', borderRadius: '10px', '&:hover': { backgroundColor: '#555' } } }}>
 
               {/* Display The User Selected Chat Room */}
               <List>
@@ -273,12 +362,23 @@ const Home = () => {
           </Grid>
 
           <Grid size={8}>
-            <Paper sx={{ width: 620, marginLeft: "8%", maxHeight: '320px', overflowY: 'auto', padding: 2, backgroundColor: 'transparent', border: "1px solid gray",boxShadow: 'none', '&::-webkit-scrollbar': { width: '8px' }, '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1', borderRadius: '10px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#888', borderRadius: '10px', '&:hover': { backgroundColor: '#555' } }}}>
+            <Paper sx={{ width: 620, marginLeft: "8%", maxHeight: '420px', padding: 2, backgroundColor: 'transparent', border: "1px solid gray", boxShadow: 'none', '&::-webkit-scrollbar': { width: '8px' }, '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1', borderRadius: '10px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#888', borderRadius: '10px', '&:hover': { backgroundColor: '#555' } } }}>
 
               <CustomTabPanel value={value} index={value}>
-                <ChatBox ownerChatID={value} friendChatID={friendValue} currentUserID={currentUserID} selectedChatData={selectedChatData} />
+                <ChatBox ownerChatID={value} friendChatID={friendValue} currentUserID={currentUserID} selectedChatData={selectedChatData} chatRoom={chatRoom} chatUserName={chatUserName} messages={messages} />
               </CustomTabPanel>
             </Paper>
+          </Grid>
+
+          <Grid size={5}>
+          </Grid>
+
+          <Grid size={7}>
+            <CustomTabPanel2 value={value} index={value}>
+              {parseInt(selectedChatData.admin) === currentUserID ? (<Button>Admin</Button>) : (<p>Not Admin</p>)}
+              <SendMessageForm sendMessage={sendMessage} ownerChatID={value} friendChatID={friendValue} currentUserID={currentUserID} selectedChatData={selectedChatData}/>
+            </CustomTabPanel2>
+
           </Grid>
 
           <Grid size={12} sx={{ marginBottom: '-1.5%' }}>

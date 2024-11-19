@@ -49,8 +49,6 @@ const Report = () => {
     return dateTimeB.getTime() - dateTimeA.getTime();
   });
 
-  console.log(sortedRecords);
-  console.log(userActionData);
 
   return <div>
     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '97vh' }}>

@@ -207,7 +207,7 @@ const FriendList = () => {
   // Handle Chat Friend
   const handleChatFriend = (friend: any) => {
     let roleExist = "false";
-    let chatID = 5;
+    let chatID = 0;
 
     axios.get(names.getProfileByID + friend.profileID).then((response) => {
       let friendUserID = response.data.userID.toString();
