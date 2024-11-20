@@ -1,7 +1,7 @@
-import { Button, Paper } from "@mui/material"
+import { Paper } from "@mui/material"
 import Grid from '@mui/material/Grid2';
 import MessageContainer from "./MessageContainer";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import names from "../General/Component";
 
@@ -15,20 +15,6 @@ const ChatBox: React.FC<any> = ({ ownerChatID, friendChatID, currentUserID, sele
     const [receiver, setReceiver] = useState<any>();
     const [senderName, setSenderName] = useState<any>();
     const [receiverName, setReceiverName] = useState<any>();
-
-    const messagesEndRef = useRef<HTMLDivElement>(null); // Reference to the bottom of the message container
-
-    // Scroll to bottom function
-    const scrollToBottom = () => {
-        if (messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-        }
-    };
-
-    // Run scrollToBottom whenever the messages change
-    useEffect(() => {
-        scrollToBottom();
-    }, [messages]);
 
     function getMessageData() {
         axios.get(names.getMessageByChatID + ownerChatID).then((response) => {
@@ -59,15 +45,14 @@ const ChatBox: React.FC<any> = ({ ownerChatID, friendChatID, currentUserID, sele
     }, []);
 
     return <div>
-        <Paper sx={{ width: 600, marginBottom: '-2%', marginLeft: '-2%', marginTop: '-5%', height: '380px', overflowY: 'auto', padding: 2, backgroundColor: 'transparent', boxShadow: 'none', '&::-webkit-scrollbar': { width: '8px' }, '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1', borderRadius: '10px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#888', borderRadius: '10px', '&:hover': { backgroundColor: '#555' } } }}>
+        {/* <Paper sx={{ width: 600, marginBottom: '-2%', marginLeft: '-2%', marginTop: '-5%', height: '380px', overflowY: 'auto', padding: 2, backgroundColor: 'transparent', boxShadow: 'none', '&::-webkit-scrollbar': { width: '8px' }, '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1', borderRadius: '10px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#888', borderRadius: '10px', '&:hover': { backgroundColor: '#555' } } }}> */}
 
             <Grid container spacing={1} alignItems="center">
                 <Grid size={12} >
                     <MessageContainer ownMessages={ownMessage} friendMessages={friendMessage} sender={sender} receiver={receiver} senderName={senderName} receiverName={receiverName} currentUser={currentUserId} ownerChatRoomID={ownerChatID} friendChatRoomID={friendChatID} messages={messages} chatUserName={chatUserName} />
                 </Grid>
             </Grid>
-        </Paper>
-        <div ref={messagesEndRef} />
+        {/* </Paper> */}
     </div>
 }
 

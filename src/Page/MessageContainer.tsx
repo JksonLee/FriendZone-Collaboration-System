@@ -1,4 +1,4 @@
-import { Box, Paper, Typography } from "@mui/material";
+import { Paper, Typography } from "@mui/material";
 import { useEffect, useRef } from "react";
 
 interface MessageList {
@@ -12,23 +12,10 @@ interface MessageList {
 }
 
 const MessagesContainer: React.FC<any> = ({ ownMessages, friendMessages, sender, receiver, senderName, receiverName, currentUser, ownerChatRoomID, friendChatRoomID, messages, chatUserName }) => {
-
+    const messagesEndRef = useRef<any>(null);
     const now = new Date();
     const currentDate = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
-
     const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
-
-    const messagesEndRef = useRef<HTMLDivElement>(null);
-
-    const scrollToBottom = () => {
-        if (messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-        }
-    };
-
-    useEffect(() => {
-        scrollToBottom();
-    }, [messages]);
 
     //Combine Two Data Set Into One Data Set
     const combineMessageList: MessageList[] = [...ownMessages, ...friendMessages];
@@ -44,52 +31,13 @@ const MessagesContainer: React.FC<any> = ({ ownMessages, friendMessages, sender,
         return dateTimeA.getTime() - dateTimeB.getTime();
     });
 
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView();
+    }, [messages, sortedData]);
+
 
     return <div>
-        {sortedData.map((m: any) => {
-            if (m.senderID === currentUser) {
-                return <div key={m.messageID}>
-                    <Typography variant="subtitle1" gutterBottom sx={{ color: "black", textAlign: "right" }}>
-                        <b>{senderName}</b>
-                    </Typography>
-                    <Paper sx={{
-                        maxWidth: 300, padding: 1, backgroundColor: 'white', boxShadow: 'none', marginLeft: '47%', marginBottom: '3%',
-                        '&::-webkit-scrollbar': { width: '8px' }, '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1', borderRadius: '10px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#888', borderRadius: '10px', '&:hover': { backgroundColor: '#555' } }
-                    }}>
-                        <Typography variant="body1" gutterBottom sx={{ color: "black", textAlign: "right", marginLeft: 2, maxWidth: 300 }}>
-                            {m.message}
-                        </Typography>
-                        <Typography variant="body1" gutterBottom sx={{ color: "black", textAlign: "left", marginLeft: 2, maxWidth: 300, fontSize: '10px' }}>
-                            <i>{m.date}_{m.time}</i>
-                        </Typography>
-                    </Paper>
-                    <div ref={messagesEndRef} />
-                </div>
-
-            } else if (m.senderID !== currentUser) {
-                return <div key={m.messageID}>
-                    <Typography variant="subtitle1" gutterBottom sx={{ color: "black" }}>
-                        <b>{receiverName}</b>
-                    </Typography>
-                    <Paper sx={{
-                        maxWidth: 300, padding: 1, backgroundColor: 'white', boxShadow: 'none', marginBottom: '3%',
-                        '&::-webkit-scrollbar': { width: '8px' }, '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1', borderRadius: '10px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#888', borderRadius: '10px', '&:hover': { backgroundColor: '#555' } }
-                    }}>
-                        <Typography variant="body1" gutterBottom sx={{ color: "black", textAlign: "left", marginLeft: 2, maxWidth: 300 }}>
-                            {m.message}
-                        </Typography>
-                        <Typography variant="body1" gutterBottom sx={{ color: "black", textAlign: "right", marginLeft: 2, maxWidth: 300, fontSize: '10px' }}>
-                            <i>{m.date}_{m.time}</i>
-                        </Typography>
-                    </Paper>
-                    <div ref={messagesEndRef} />
-                </div>
-            }
-        }
-        )}
-        <div ref={messagesEndRef} />
-
-        {/* {messages.map((m: any, index: any) => {
+        {messages.map((m: any, index: any) => {
             if (m.user === senderName) {
                 return <div key={index}>
                     <Typography variant="subtitle1" gutterBottom sx={{ color: "black", textAlign: "right" }}>
@@ -127,7 +75,7 @@ const MessagesContainer: React.FC<any> = ({ ownMessages, friendMessages, sender,
                 </div>
             }
         }
-        )} */}
+        )}
         <div ref={messagesEndRef} />
     </div >
 }

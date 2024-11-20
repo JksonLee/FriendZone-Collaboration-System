@@ -5,7 +5,7 @@ import Grid from '@mui/material/Grid2';
 import { useLocation } from 'react-router-dom';
 import BottomMenuBar from '../General/BottomMenuBar';
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ChatBox from './ChatBox';
 import { HubConnectionBuilder } from '@microsoft/signalr';
 import SendMessageForm from './SendMessageForm';
@@ -38,6 +38,16 @@ interface Message {
   text: string;
 }
 
+interface MessageList {
+  messageID: number;
+  senderID: number;
+  receiverID: number;
+  message: string;
+  date: string;
+  time: string;
+  chatID: number;
+}
+
 const Home = () => {
   //Catch The Data
   const location = useLocation();
@@ -54,13 +64,20 @@ const Home = () => {
   const [friendProfileDetail, setFriendProfileDetail] = useState<Map<number, ProfileDetail>>(new Map());
   const [value, setValue] = useState(0);
   const [friendValue, setFriendValue] = useState(0);
-
   const [connection, setConnection] = useState<any>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
   const [chatUserName, setChatUserName] = useState<any>();
   const [chatRoom, setChatRoom] = useState<any>("0");
   const [isJoined, setIsJoined] = useState<boolean>(false);
+  const [ownMessage, setOwnMessage] = useState<any>([]);
+  const [friendMessage, setFriendMessage] = useState<any>([]);
+  const [sender, setSender] = useState<any>();
+  const [receiver, setReceiver] = useState<any>();
+  const [senderName, setSenderName] = useState<any>();
+  const [receiverName, setReceiverName] = useState<any>();
+  const messagesEndRef = useRef<any>(null);
+  const now = new Date();
 
   // Catch Data From DB
   function getUserData() {
@@ -128,7 +145,7 @@ const Home = () => {
     );
   }
 
-  // Catch The Specific Friend Online Status
+  // Catch The Specific Friend
   function handleChat(chat: any) {
     setSelectedChatData(chat);
     setValue(chat.chatID);
@@ -214,6 +231,59 @@ const Home = () => {
       setIsJoined(true);
     }
   };
+
+  function getMessageData() {
+    console.log(friendValue);
+    console.log(value);
+
+    axios.get(names.getMessageByChatID + value).then((response) => {
+      setOwnMessage(response.data);
+    })
+
+    axios.get(names.getMessageByChatID + friendValue).then((response) => {
+      setFriendMessage(response.data);
+    })
+
+    axios.get(names.getChatByID + value).then((response) => {
+      setSender(response.data.userID);
+      axios.get(names.getProfileByUserID + response.data.userID).then((response) => {
+        setSenderName(response.data.name);
+      })
+    })
+
+    axios.get(names.getChatByID + friendValue).then((response) => {
+      setReceiver(response.data.userID);
+      axios.get(names.getProfileByUserID + response.data.userID).then((response) => {
+        setReceiverName(response.data.name);
+      })
+    })
+  }
+
+
+  const currentDate = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
+  const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+
+  //Combine Two Data Set Into One Data Set
+  const combineMessageList: MessageList[] = [...ownMessage, ...friendMessage];
+
+  const toDateTime = (date: string, time: string): Date => {
+    return new Date(`${date}T${time}Z`);
+  };
+
+  // Sort the combined data by dateTime (ascending)
+  const sortedData = combineMessageList.sort((a, b) => {
+    const dateTimeA = toDateTime(a.date, a.time);
+    const dateTimeB = toDateTime(b.date, b.time);
+    return dateTimeA.getTime() - dateTimeB.getTime();
+  });
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, sortedData]);
+
+  useEffect(() => {
+    getMessageData()
+  }, [friendValue]);
 
   useEffect(() => {
     getUserData()
@@ -365,7 +435,49 @@ const Home = () => {
             <Paper sx={{ width: 620, marginLeft: "8%", maxHeight: '420px', padding: 2, backgroundColor: 'transparent', border: "1px solid gray", boxShadow: 'none', '&::-webkit-scrollbar': { width: '8px' }, '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1', borderRadius: '10px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#888', borderRadius: '10px', '&:hover': { backgroundColor: '#555' } } }}>
 
               <CustomTabPanel value={value} index={value}>
-                <ChatBox ownerChatID={value} friendChatID={friendValue} currentUserID={currentUserID} selectedChatData={selectedChatData} chatRoom={chatRoom} chatUserName={chatUserName} messages={messages} />
+                {/* <ChatBox ownerChatID={value} friendChatID={friendValue} currentUserID={currentUserID} selectedChatData={selectedChatData} chatRoom={chatRoom} chatUserName={chatUserName} messages={messages} isRefresh={isRefresh} /> */}
+                <Paper sx={{ width: 600, marginBottom: '-2%', marginLeft: '-2%', marginTop: '-5%', height: '380px', overflowY: 'auto', padding: 2, backgroundColor: 'transparent', boxShadow: 'none', '&::-webkit-scrollbar': { width: '8px' }, '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1', borderRadius: '10px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#888', borderRadius: '10px', '&:hover': { backgroundColor: '#555' } } }}>
+                  {sortedData.map((m: any) => {
+                    if (m.senderID === currentUserID) {
+                      return <div key={m.messageID}>
+                        <Typography variant="subtitle1" gutterBottom sx={{ color: "black", textAlign: "right" }}>
+                          <b>{senderName}</b>
+                        </Typography>
+                        <Paper sx={{
+                          maxWidth: 300, padding: 1, backgroundColor: 'white', boxShadow: 'none', marginLeft: '47%', marginBottom: '3%',
+                          '&::-webkit-scrollbar': { width: '8px' }, '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1', borderRadius: '10px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#888', borderRadius: '10px', '&:hover': { backgroundColor: '#555' } }
+                        }}>
+                          <Typography variant="body1" gutterBottom sx={{ color: "black", textAlign: "right", marginLeft: 2, maxWidth: 300 }}>
+                            {m.message}
+                          </Typography>
+                          <Typography variant="body1" gutterBottom sx={{ color: "black", textAlign: "left", marginLeft: 2, maxWidth: 300, fontSize: '10px' }}>
+                            <i>{m.date}_{m.time}</i>
+                          </Typography>
+                        </Paper>
+                      </div>
+
+                    } else if (m.senderID !== currentUserID) {
+                      return <div key={m.messageID}>
+                        <Typography variant="subtitle1" gutterBottom sx={{ color: "black" }}>
+                          <b>{receiverName}</b>
+                        </Typography>
+                        <Paper sx={{
+                          maxWidth: 300, padding: 1, backgroundColor: 'white', boxShadow: 'none', marginBottom: '3%',
+                          '&::-webkit-scrollbar': { width: '8px' }, '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1', borderRadius: '10px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#888', borderRadius: '10px', '&:hover': { backgroundColor: '#555' } }
+                        }}>
+                          <Typography variant="body1" gutterBottom sx={{ color: "black", textAlign: "left", marginLeft: 2, maxWidth: 300 }}>
+                            {m.message}
+                          </Typography>
+                          <Typography variant="body1" gutterBottom sx={{ color: "black", textAlign: "right", marginLeft: 2, maxWidth: 300, fontSize: '10px' }}>
+                            <i>{m.date}_{m.time}</i>
+                          </Typography>
+                        </Paper>
+                      </div>
+                    }
+                  }
+                  )}
+                  <ChatBox ownerChatID={value} friendChatID={friendValue} currentUserID={currentUserID} selectedChatData={selectedChatData} chatRoom={chatRoom} chatUserName={chatUserName} messages={messages}/>
+                </Paper>
               </CustomTabPanel>
             </Paper>
           </Grid>
@@ -376,7 +488,7 @@ const Home = () => {
           <Grid size={7}>
             <CustomTabPanel2 value={value} index={value}>
               {parseInt(selectedChatData.admin) === currentUserID ? (<Button>Admin</Button>) : (<p>Not Admin</p>)}
-              <SendMessageForm sendMessage={sendMessage} ownerChatID={value} friendChatID={friendValue} currentUserID={currentUserID} selectedChatData={selectedChatData}/>
+              <SendMessageForm sendMessage={sendMessage} ownerChatID={value} friendChatID={friendValue} currentUserID={currentUserID} selectedChatData={selectedChatData} />
             </CustomTabPanel2>
 
           </Grid>

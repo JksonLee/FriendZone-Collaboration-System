@@ -16,6 +16,7 @@
     "@microsoft/signalr": "^8.0.7",
     "@mui/icons-material": "^6.1.6",
     "@mui/material": "^6.1.5",
+    "@stream-io/video-react-sdk": "^1.7.18",
     "axios": "^1.7.7",
     "react": "^18.3.1",
     "react-calendar": "^5.1.0",
@@ -23,7 +24,9 @@
     "react-hook-form": "^7.53.1",
     "react-router-dom": "^6.28.0",
     "react-scroll-motion": "^0.3.3",
-    "react-toastify": "^10.0.6"
+    "react-toastify": "^10.0.6",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
