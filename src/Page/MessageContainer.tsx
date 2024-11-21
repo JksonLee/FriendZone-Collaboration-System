@@ -1,5 +1,7 @@
-import { Paper, Typography } from "@mui/material";
+import { Button, Paper, Typography } from "@mui/material";
 import { useEffect, useRef } from "react";
+import names from "../General/Component";
+import { refreshPage } from "../General/Functions";
 
 interface MessageList {
     messageID: number;
@@ -11,7 +13,7 @@ interface MessageList {
     chatID: number;
 }
 
-const MessagesContainer: React.FC<any> = ({ ownMessages, friendMessages, sender, receiver, senderName, receiverName, currentUser, ownerChatRoomID, friendChatRoomID, messages, chatUserName }) => {
+const MessagesContainer: React.FC<any> = ({ ownMessages, friendMessages, sender, receiver, senderName, receiverName, currentUser, ownerChatRoomID, friendChatRoomID, messages, chatUserName, handleCallAnswer }) => {
     const messagesEndRef = useRef<any>(null);
     const now = new Date();
     const currentDate = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
@@ -31,6 +33,13 @@ const MessagesContainer: React.FC<any> = ({ ownMessages, friendMessages, sender,
         return dateTimeA.getTime() - dateTimeB.getTime();
     });
 
+    function handleAnswerCall(answer:any){
+        handleCallAnswer(answer);
+        if(answer === "decline"){
+            // refreshPage(2);
+        }
+    }
+
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView();
     }, [messages, sortedData]);
@@ -38,41 +47,83 @@ const MessagesContainer: React.FC<any> = ({ ownMessages, friendMessages, sender,
 
     return <div>
         {messages.map((m: any, index: any) => {
-            if (m.user === senderName) {
-                return <div key={index}>
-                    <Typography variant="subtitle1" gutterBottom sx={{ color: "black", textAlign: "right" }}>
-                        <b>{m.user}</b>
-                    </Typography>
-                    <Paper sx={{
-                        maxWidth: 300, padding: 1, backgroundColor: 'white', boxShadow: 'none', marginLeft: '47%', marginBottom: '3%',
-                        '&::-webkit-scrollbar': { width: '8px' }, '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1', borderRadius: '10px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#888', borderRadius: '10px', '&:hover': { backgroundColor: '#555' } }
-                    }}>
-                        <Typography variant="body1" gutterBottom sx={{ color: "black", textAlign: "right", marginLeft: 2, maxWidth: 300 }}>
-                            {m.text}
+            if (m.text === "Video Call Request") {
+                if (m.user === senderName) {
+                    return <div key={index}>
+                        <Typography variant="subtitle1" gutterBottom sx={{ color: "black", textAlign: "right" }}>
+                            <b>{m.user}</b>
                         </Typography>
-                        <Typography variant="body1" gutterBottom sx={{ color: "black", textAlign: "left", marginLeft: 2, maxWidth: 300, fontSize: '10px' }}>
-                            <i>{currentDate}_{currentTime}</i>
+                        <Paper sx={{
+                            maxWidth: 300, padding: 1, backgroundColor: 'white', boxShadow: 'none', marginLeft: '47%', marginBottom: '3%',
+                            '&::-webkit-scrollbar': { width: '8px' }, '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1', borderRadius: '10px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#888', borderRadius: '10px', '&:hover': { backgroundColor: '#555' } }
+                        }}>
+                            <Typography variant="body1" gutterBottom sx={{ color: "black", textAlign: "right", marginLeft: 2, maxWidth: 300 }}>
+                                {/* {m.text} */}
+                                Waiting Accept...
+                            </Typography>
+                            <Typography variant="body1" gutterBottom sx={{ color: "black", textAlign: "left", marginLeft: 2, maxWidth: 300, fontSize: '10px' }}>
+                                <i>{currentDate}_{currentTime}</i>
+                            </Typography>
+                        </Paper>
+                    </div>
+                } else if (m.user !== senderName) {
+                    return <div key={index}>
+                        <Typography variant="subtitle1" gutterBottom sx={{ color: "black" }}>
+                            <b>{m.user}</b>
                         </Typography>
-                    </Paper>
-                </div>
+                        <Paper sx={{
+                            maxWidth: 300, padding: 1, backgroundColor: 'white', boxShadow: 'none', marginBottom: '3%',
+                            '&::-webkit-scrollbar': { width: '8px' }, '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1', borderRadius: '10px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#888', borderRadius: '10px', '&:hover': { backgroundColor: '#555' } }
+                        }}>
+                            <Typography variant="body1" gutterBottom sx={{ color: "black", textAlign: "left", marginLeft: 2, maxWidth: 300 }}>
+                                {m.text}
+                                <br/>
+                                <Button onClick={() => handleAnswerCall("join")} sx={{ backgroundColor: names.EditButton, color: "white", width:'120px', marginTop: '2%' }}>Join</Button>
+                                <Button onClick={() => handleAnswerCall("decline")} sx={{ backgroundColor: names.DeleteButton, color: "white", width:'120px', marginTop: '2%', marginLeft: '10%' }}>Decline</Button>
+                            </Typography>
+                            <Typography variant="body1" gutterBottom sx={{ color: "black", textAlign: "right", marginLeft: 2, maxWidth: 300, fontSize: '10px' }}>
+                                <i>{currentDate}_{currentTime}</i>
+                            </Typography>
+                        </Paper>
+                    </div>
+                }
+            } else if (m.text !== "Video Call Request") {
+                if (m.user === senderName) {
+                    return <div key={index}>
+                        <Typography variant="subtitle1" gutterBottom sx={{ color: "black", textAlign: "right" }}>
+                            <b>{m.user}</b>
+                        </Typography>
+                        <Paper sx={{
+                            maxWidth: 300, padding: 1, backgroundColor: 'white', boxShadow: 'none', marginLeft: '47%', marginBottom: '3%',
+                            '&::-webkit-scrollbar': { width: '8px' }, '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1', borderRadius: '10px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#888', borderRadius: '10px', '&:hover': { backgroundColor: '#555' } }
+                        }}>
+                            <Typography variant="body1" gutterBottom sx={{ color: "black", textAlign: "right", marginLeft: 2, maxWidth: 300 }}>
+                                {m.text}
+                            </Typography>
+                            <Typography variant="body1" gutterBottom sx={{ color: "black", textAlign: "left", marginLeft: 2, maxWidth: 300, fontSize: '10px' }}>
+                                <i>{currentDate}_{currentTime}</i>
+                            </Typography>
+                        </Paper>
+                    </div>
 
-            } else if (m.user !== senderName) {
-                return <div key={index}>
-                    <Typography variant="subtitle1" gutterBottom sx={{ color: "black" }}>
-                        <b>{m.user}</b>
-                    </Typography>
-                    <Paper sx={{
-                        maxWidth: 300, padding: 1, backgroundColor: 'white', boxShadow: 'none', marginBottom: '3%',
-                        '&::-webkit-scrollbar': { width: '8px' }, '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1', borderRadius: '10px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#888', borderRadius: '10px', '&:hover': { backgroundColor: '#555' } }
-                    }}>
-                        <Typography variant="body1" gutterBottom sx={{ color: "black", textAlign: "left", marginLeft: 2, maxWidth: 300 }}>
-                            {m.text}
+                } else if (m.user !== senderName) {
+                    return <div key={index}>
+                        <Typography variant="subtitle1" gutterBottom sx={{ color: "black" }}>
+                            <b>{m.user}</b>
                         </Typography>
-                        <Typography variant="body1" gutterBottom sx={{ color: "black", textAlign: "right", marginLeft: 2, maxWidth: 300, fontSize: '10px' }}>
-                            <i>{currentDate}_{currentTime}</i>
-                        </Typography>
-                    </Paper>
-                </div>
+                        <Paper sx={{
+                            maxWidth: 300, padding: 1, backgroundColor: 'white', boxShadow: 'none', marginBottom: '3%',
+                            '&::-webkit-scrollbar': { width: '8px' }, '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1', borderRadius: '10px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#888', borderRadius: '10px', '&:hover': { backgroundColor: '#555' } }
+                        }}>
+                            <Typography variant="body1" gutterBottom sx={{ color: "black", textAlign: "left", marginLeft: 2, maxWidth: 300 }}>
+                                {m.text}
+                            </Typography>
+                            <Typography variant="body1" gutterBottom sx={{ color: "black", textAlign: "right", marginLeft: 2, maxWidth: 300, fontSize: '10px' }}>
+                                <i>{currentDate}_{currentTime}</i>
+                            </Typography>
+                        </Paper>
+                    </div>
+                }
             }
         }
         )}

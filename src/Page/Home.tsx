@@ -1,14 +1,17 @@
 import '../CSS/Home.css'
 import names from '../General/Component';
-import { Avatar, Box, Button, List, ListItem, Paper, Typography } from '@mui/material';
+import { Avatar, BottomNavigationAction, Box, Button, List, ListItem, Paper, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import BottomMenuBar from '../General/BottomMenuBar';
 import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 import ChatBox from './ChatBox';
 import { HubConnectionBuilder } from '@microsoft/signalr';
 import SendMessageForm from './SendMessageForm';
+import VideocamIcon from '@mui/icons-material/Videocam';
+import PhoneIcon from '@mui/icons-material/Phone';
+import { refreshPage } from '../General/Functions';
 
 interface UserInformation {
   currentUserID: number;
@@ -78,6 +81,7 @@ const Home = () => {
   const [receiverName, setReceiverName] = useState<any>();
   const messagesEndRef = useRef<any>(null);
   const now = new Date();
+  const navigate = useNavigate();
 
   // Catch Data From DB
   function getUserData() {
@@ -210,11 +214,29 @@ const Home = () => {
   // Send a new message to the selected room
   const sendMessage = async (message: any) => {
     if (connection && message.trim()) {
-      try {
-        await connection.invoke('SendMessageToRoom', chatRoom, chatUserName, message);
-        setNewMessage('');
-      } catch (err) {
-        console.error('Error sending message: ', err);
+      if (message !== "Video Call Request") {
+        const currentDate = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
+
+        const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+
+
+        const messageInformation = { senderID: sender, receiverID: receiver, message: message, date: currentDate, time: currentTime, chatID: value };
+
+        axios.post(names.basicMessageAPI, messageInformation);
+
+        try {
+          await connection.invoke('SendMessageToRoom', chatRoom, chatUserName, message);
+          setNewMessage('');
+        } catch (err) {
+          console.error('Error sending message: ', err);
+        }
+      } else {
+        try {
+          await connection.invoke('SendMessageToRoom', chatRoom, chatUserName, message);
+          setNewMessage('');
+        } catch (err) {
+          console.error('Error sending message: ', err);
+        }
       }
     }
   };
@@ -233,9 +255,6 @@ const Home = () => {
   };
 
   function getMessageData() {
-    console.log(friendValue);
-    console.log(value);
-
     axios.get(names.getMessageByChatID + value).then((response) => {
       setOwnMessage(response.data);
     })
@@ -259,10 +278,6 @@ const Home = () => {
     })
   }
 
-
-  const currentDate = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
-  const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
-
   //Combine Two Data Set Into One Data Set
   const combineMessageList: MessageList[] = [...ownMessage, ...friendMessage];
 
@@ -276,6 +291,31 @@ const Home = () => {
     const dateTimeB = toDateTime(b.date, b.time);
     return dateTimeA.getTime() - dateTimeB.getTime();
   });
+
+  function handleVideoCall() {
+    sendMessage("Video Call Request");
+
+    const userInformation = { chatID: chatRoom, userName: userProfileData.name, currentUserID: state.currentUserID, theme: state.theme, themeID: state.themeID, token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3Byb250by5nZXRzdHJlYW0uaW8iLCJzdWIiOiJ1c2VyL0RhcnRoX01hdWwiLCJ1c2VyX2lkIjoiRGFydGhfTWF1bCIsInZhbGlkaXR5X2luX3NlY29uZHMiOjYwNDgwMCwiaWF0IjoxNzMyMTE1NDgyLCJleHAiOjE3MzI3MjAyODJ9.pyoqrsgoN67yZdCKeBGL9-m-u6Trgg85eQcuwUpzWUE', userId: 'Darth_Maul' };
+    navigate('/VideoCall', { state: userInformation });
+
+  }
+
+  function handleCallAnswer(answer: any) {
+    if (answer === "join") {
+      // console.log("call start")
+      sendMessage("Accept Video Call");
+      const userInformation = { chatID: chatRoom, userName: senderName, currentUserID: state.currentUserID, theme: state.theme, themeID: state.themeID, token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3Byb250by5nZXRzdHJlYW0uaW8iLCJzdWIiOiJ1c2VyL1dlZGdlX0FudGlsbGVzIiwidXNlcl9pZCI6IldlZGdlX0FudGlsbGVzIiwidmFsaWRpdHlfaW5fc2Vjb25kcyI6NjA0ODAwLCJpYXQiOjE3MzIyMDU2ODAsImV4cCI6MTczMjgxMDQ4MH0.5v6JVKjD4-nP0Fn71KkuIy_iqdz6lwWnDzopcLFjids', userId: 'Wedge_Antilles' };
+      navigate('/VideoCall', { state: userInformation });
+
+      // Third User
+      const userInformation2 = { chatID: chatRoom, userName: userProfileData.name, currentUserID: state.currentUserID, theme: state.theme, themeID: state.themeID, token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3Byb250by5nZXRzdHJlYW0uaW8iLCJzdWIiOiJ1c2VyL0RhcnRoX1ZhZGVyIiwidXNlcl9pZCI6IkRhcnRoX1ZhZGVyIiwidmFsaWRpdHlfaW5fc2Vjb25kcyI6NjA0ODAwLCJpYXQiOjE3MzIyMDU2ODEsImV4cCI6MTczMjgxMDQ4MX0.RwN3woH0hi9KxfqP48TEiX3VrGoD85Hj2ZnpUFt4wBg', userId: 'Darth_Vader' };
+
+    } else if (answer === "decline") {
+      // console.log("call end")
+      sendMessage("Decline Video Call");
+      refreshPage(2);
+    }
+  }
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -476,7 +516,7 @@ const Home = () => {
                     }
                   }
                   )}
-                  <ChatBox ownerChatID={value} friendChatID={friendValue} currentUserID={currentUserID} selectedChatData={selectedChatData} chatRoom={chatRoom} chatUserName={chatUserName} messages={messages}/>
+                  <ChatBox ownerChatID={value} friendChatID={friendValue} currentUserID={currentUserID} selectedChatData={selectedChatData} chatRoom={chatRoom} chatUserName={chatUserName} messages={messages} handleCallAnswer={handleCallAnswer} />
                 </Paper>
               </CustomTabPanel>
             </Paper>
@@ -487,7 +527,17 @@ const Home = () => {
 
           <Grid size={7}>
             <CustomTabPanel2 value={value} index={value}>
-              {parseInt(selectedChatData.admin) === currentUserID ? (<Button>Admin</Button>) : (<p>Not Admin</p>)}
+              {parseInt(selectedChatData.admin) === currentUserID ?
+                (<Grid container spacing={1}>
+                  <Grid size={4}></Grid>
+                  <Grid size={5}></Grid>
+                  <Grid size={1}><BottomNavigationAction label="Video Call" value="home" onClick={() => handleVideoCall()} icon={<VideocamIcon fontSize="small" />} sx={{ '&.Mui-selected': { color: 'rgba(245, 245, 245, 0.9)' } }} /></Grid>
+                </Grid>) :
+                (<Grid container spacing={1}>
+                  <Grid size={4}></Grid>
+                  <Grid size={5}></Grid>
+                  <Grid size={1}><BottomNavigationAction label="Video Call" value="home" onClick={() => handleVideoCall()} icon={<VideocamIcon fontSize="small" />} sx={{ '&.Mui-selected': { color: 'rgba(245, 245, 245, 0.9)' } }} /></Grid>
+                </Grid>)}
               <SendMessageForm sendMessage={sendMessage} ownerChatID={value} friendChatID={friendValue} currentUserID={currentUserID} selectedChatData={selectedChatData} />
             </CustomTabPanel2>
 

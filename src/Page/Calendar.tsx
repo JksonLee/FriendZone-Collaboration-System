@@ -6,6 +6,16 @@ import { useLocation } from 'react-router-dom';
 import BottomMenuBar from '../General/BottomMenuBar';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useCalendarApp, ScheduleXCalendar } from '@schedule-x/react'
+import {
+  createViewDay,
+  createViewMonthAgenda,
+  createViewMonthGrid,
+  createViewWeek,
+} from '@schedule-x/calendar'
+import { createEventsServicePlugin } from '@schedule-x/events-service'
+ 
+import '@schedule-x/theme-default/dist/index.css'
 
 interface UserInformation {
   currentUserID: number;
@@ -37,7 +47,28 @@ const Calendar = () => {
     })
   }
 
+  //Calendar
+  const plugins = [createEventsServicePlugin()]
+ 
+  const calendar = useCalendarApp({
+    views: [createViewDay(), createViewWeek(), createViewMonthGrid(), createViewMonthAgenda()],
+    events: [
+      {
+        id: '1',
+        title: 'Event 1',
+        start: '2025-01-01 00:00',
+        end: '2025-01-01 02:00',
+        description: 'My Testing',
+      },
+    ],
+    selectedDate:'2025-01-01',
+    plugins:[
+    ]
+  })
+
   useEffect(() => {
+    // get all events
+    calendar.eventsService.getAll()
     getUserData()
   }, []);
 
@@ -58,8 +89,9 @@ const Calendar = () => {
                 '&::-webkit-scrollbar': { width: '8px' }, '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1', borderRadius: '10px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#888', borderRadius: '10px', '&:hover': { backgroundColor: '#555' } }
               }}>
           
-          </Paper>
+          <ScheduleXCalendar calendarApp={calendar} />
 
+          </Paper>
           </Grid>
 
           <Grid size={12} sx={{ marginBottom: '-1.5%' }}>

@@ -11,3 +11,10 @@ html {
     margin: 0;
     color: whitesmoke;
 }
+
+.sx-react-calendar-wrapper {
+    width: 1200px;
+    max-width: 100vw;
+    height: 800px;
+    max-height: 90vh;
+  }

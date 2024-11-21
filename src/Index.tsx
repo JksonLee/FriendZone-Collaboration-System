@@ -12,6 +12,7 @@ import Calendar from './Page/Calendar';
 import Report from './Page/Report';
 import ErrorPage from './Page/ErrorPage';
 import FriendProfile from './Page/FriendProfile';
+import VideoCall from './Page/VideoCall';
 
 
 const Index = () => {
@@ -31,6 +32,7 @@ const Index = () => {
                 <Route path='/Calendar' element={<Calendar />}/>
                 <Route path='/Report' element={<Report />}/>
                 <Route path='/ErrorPage' element={<ErrorPage />}/>
+                <Route path='/VideoCall' element={<VideoCall />}/>
             </Routes>
         </Router>
     </div>

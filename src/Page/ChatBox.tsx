@@ -6,7 +6,7 @@ import axios from "axios";
 import names from "../General/Component";
 
 
-const ChatBox: React.FC<any> = ({ ownerChatID, friendChatID, currentUserID, selectedChatData, chatRoom, chatUserName, messages }) => {
+const ChatBox: React.FC<any> = ({ ownerChatID, friendChatID, currentUserID, selectedChatData, chatRoom, chatUserName, messages, handleCallAnswer }) => {
     // const { chatID, name, chatRole, admin, member, lastDateTime, status, userID } = selectedChatData;
     const currentUserId = currentUserID;
     const [ownMessage, setOwnMessage] = useState<any>([]);
@@ -49,7 +49,7 @@ const ChatBox: React.FC<any> = ({ ownerChatID, friendChatID, currentUserID, sele
 
             <Grid container spacing={1} alignItems="center">
                 <Grid size={12} >
-                    <MessageContainer ownMessages={ownMessage} friendMessages={friendMessage} sender={sender} receiver={receiver} senderName={senderName} receiverName={receiverName} currentUser={currentUserId} ownerChatRoomID={ownerChatID} friendChatRoomID={friendChatID} messages={messages} chatUserName={chatUserName} />
+                    <MessageContainer ownMessages={ownMessage} friendMessages={friendMessage} sender={sender} receiver={receiver} senderName={senderName} receiverName={receiverName} currentUser={currentUserId} ownerChatRoomID={ownerChatID} friendChatRoomID={friendChatID} messages={messages} chatUserName={chatUserName} handleCallAnswer={handleCallAnswer} />
                 </Grid>
             </Grid>
         {/* </Paper> */}

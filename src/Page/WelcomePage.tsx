@@ -88,10 +88,10 @@ const WelcomePage = () => {
                         <Animator animation={MoveInOutFromBottom} style={{ marginBottom: 50 }}>
                             <h1>Are You Get Ready To Enjoy The System? Let Go ~</h1>
                         </Animator>
-                        <Animator animation={MoveInOutFromLeft} style={{ textAlign: 'center', marginBottom: 20, marginLeft: '3%' }}>
+                        <Animator animation={MoveInOutFromLeft} style={{ textAlign: 'center', marginBottom: 20, marginLeft: '-1%' }}>
                             <Link to="/Login" style={{ color: 'whitesmoke' }}>Login</Link>
                         </Animator>
-                        <Animator animation={MoveInOutFromRight} style={{ textAlign: 'center', marginLeft: '-4%' }}>
+                        <Animator animation={MoveInOutFromRight} style={{ textAlign: 'center', marginLeft: '-1%' }}>
                             <Link to="/Register" style={{ color: 'whitesmoke' }}>Register</Link>
                         </Animator>
                     </h2>

@@ -22,25 +22,25 @@ const SendMessageForm: React.FC<any> = ({ sendMessage, ownerChatID, friendChatID
     let messageInformation: MessageInformation;
     const now = new Date();
 
-    function getMessageData() {
-        axios.get(names.getChatByID + ownerChatID).then((response) => {
-            setSender(response.data.userID);
-            axios.get(names.getProfileByUserID + response.data.userID).then((response) => {
-                setSenderName(response.data.name);
-            })
-        })
+    // function getMessageData() {
+    //     axios.get(names.getChatByID + ownerChatID).then((response) => {
+    //         setSender(response.data.userID);
+    //         axios.get(names.getProfileByUserID + response.data.userID).then((response) => {
+    //             setSenderName(response.data.name);
+    //         })
+    //     })
 
-        axios.get(names.getChatByID + friendChatID).then((response) => {
-            setReceiver(response.data.userID);
-            axios.get(names.getProfileByUserID + response.data.userID).then((response) => {
-                setReceiverName(response.data.name);
-            })
-        })
-    }
+    //     axios.get(names.getChatByID + friendChatID).then((response) => {
+    //         setReceiver(response.data.userID);
+    //         axios.get(names.getProfileByUserID + response.data.userID).then((response) => {
+    //             setReceiverName(response.data.name);
+    //         })
+    //     })
+    // }
 
-    useEffect(() => {
-        getMessageData()
-    }, []);
+    // useEffect(() => {
+    //     getMessageData()
+    // }, []);
 
     
     function messageChange(e: any) {
@@ -48,14 +48,14 @@ const SendMessageForm: React.FC<any> = ({ sendMessage, ownerChatID, friendChatID
     }
 
     const submitMessage = (e: any) => {
-        const currentDate = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
+        // const currentDate = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
 
-        const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+        // const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
 
 
-        messageInformation = { senderID: sender, receiverID: receiver, message: message, date: currentDate, time: currentTime, chatID: ownerChatID};
+        // messageInformation = { senderID: sender, receiverID: receiver, message: message, date: currentDate, time: currentTime, chatID: ownerChatID};
 
-        axios.post(names.basicMessageAPI, messageInformation);
+        // axios.post(names.basicMessageAPI, messageInformation);
 
         e.preventDefault();
         sendMessage(message);
