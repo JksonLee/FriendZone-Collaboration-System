@@ -56,15 +56,11 @@ const Calendar = () => {
       {
         id: '1',
         title: 'Event 1',
-        start: '2025-01-01 00:00',
-        end: '2025-01-01 02:00',
-        description: 'My Testing',
+        start: '2023-12-16',
+        end: '2023-12-16',
       },
     ],
-    selectedDate:'2025-01-01',
-    plugins:[
-    ]
-  })
+  }, plugins)
 
   useEffect(() => {
     // get all events
