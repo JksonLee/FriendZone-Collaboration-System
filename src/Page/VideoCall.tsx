@@ -21,13 +21,13 @@ interface UserInformation {
 const VideoCall: React.FC<any> = () => {
     const location = useLocation();
     const state = location.state as UserInformation;
-    const chatID = state.chatID?.toString();
-    const userName = state.userName;
-    const currentUserID = state.currentUserID;
-    const theme = state.theme;
-    const themeID = state.themeID;
-    const token = state.token;
-    const userId = state.userId;
+    const chatID = state?.chatID.toString();
+    const userName = state?.userName;
+    const currentUserID = state?.currentUserID;
+    const theme = state?.theme;
+    const themeID = state?.themeID;
+    const token = state?.token;
+    const userId = state?.userId;
     const userInformationList = { currentUserID, theme, themeID };
     const navigate = useNavigate();
 
