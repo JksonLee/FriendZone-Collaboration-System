@@ -18,6 +18,7 @@ import './CSS/VideoCall.css'
 
 
 
+
 // //Typescript
 // export interface informDetail {
 //   Name: string;
@@ -422,43 +423,75 @@ import './CSS/VideoCall.css'
 //   );
 // };
 
-const apiKey = 'mmhfdzb5evj2';
-const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3Byb250by5nZXRzdHJlYW0uaW8iLCJzdWIiOiJ1c2VyL0RhcnRoX01hdWwiLCJ1c2VyX2lkIjoiRGFydGhfTWF1bCIsInZhbGlkaXR5X2luX3NlY29uZHMiOjYwNDgwMCwiaWF0IjoxNzMyMTE1NDgyLCJleHAiOjE3MzI3MjAyODJ9.pyoqrsgoN67yZdCKeBGL9-m-u6Trgg85eQcuwUpzWUE';
-const userId = 'Darth_Maul';
-const callId = '123';
+// const apiKey = 'mmhfdzb5evj2';
+// const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3Byb250by5nZXRzdHJlYW0uaW8iLCJzdWIiOiJ1c2VyL0RhcnRoX01hdWwiLCJ1c2VyX2lkIjoiRGFydGhfTWF1bCIsInZhbGlkaXR5X2luX3NlY29uZHMiOjYwNDgwMCwiaWF0IjoxNzMyMTE1NDgyLCJleHAiOjE3MzI3MjAyODJ9.pyoqrsgoN67yZdCKeBGL9-m-u6Trgg85eQcuwUpzWUE';
+// const userId = 'Darth_Maul';
+// const callId = '123';
 
-const user: User = {
-  id: userId,
-  name: 'Oliver',
-  image: 'https://getstream.io/random_svg/?id=oliver&name=Oliver',
-};
+// const user: User = {
+//   id: userId,
+//   name: 'Oliver',
+//   image: 'https://getstream.io/random_svg/?id=oliver&name=Oliver',
+// };
 
-const client = new StreamVideoClient({ apiKey, user, token });
-const call = client.call('default', callId);
-call.join({ create: true });
+// const client = new StreamVideoClient({ apiKey, user, token });
+// const call = client.call('default', callId);
+// call.join({ create: true });
 
-export default function App() {
+// export default function App() {
+//   return (
+//     <StreamVideo client={client}>
+//       <StreamCall call={call}>
+//         <MyUILayout />
+//       </StreamCall>
+//     </StreamVideo>
+//   );
+// }
+
+// export const MyUILayout = () => {
+//   const { useCallCallingState } = useCallStateHooks();
+//   const callingState = useCallCallingState();
+
+//   if (callingState !== CallingState.JOINED) {
+//     return <div>Loading...</div>;
+//   }
+
+//   return (
+//     <StreamTheme>
+//       <SpeakerLayout participantsBarPosition='bottom' />
+//       <CallControls />
+//     </StreamTheme>
+//   );
+// };
+
+import { ScheduleXCalendar, useCalendarApp } from '@schedule-x/react';
+import { createViewWeek, createViewMonthGrid} from '@schedule-x/calendar'
+import '@schedule-x/theme-default/dist/calendar.css'
+import { createEventModalPlugin } from '@schedule-x/event-modal'
+import { createDragAndDropPlugin } from '@schedule-x/drag-and-drop'
+
+const App = () => {
+  const calendar = useCalendarApp({
+    views:[
+      createViewWeek(),
+      createViewMonthGrid()
+    ],
+    events:[{
+      id: 1,
+      title: "Hi",
+      start: "2025-01-01 00:00",
+      end: "2025-01-01 02:00",
+      description: "My Testing",
+    }],
+    selectedDate: '2025-01-01',
+    plugins:[
+      createEventModalPlugin(),
+      createDragAndDropPlugin(),
+
+    ]
+  });
   return (
-    <StreamVideo client={client}>
-      <StreamCall call={call}>
-        <MyUILayout />
-      </StreamCall>
-    </StreamVideo>
-  );
-}
-
-export const MyUILayout = () => {
-  const { useCallCallingState } = useCallStateHooks();
-  const callingState = useCallCallingState();
-
-  if (callingState !== CallingState.JOINED) {
-    return <div>Loading...</div>;
-  }
-
-  return (
-    <StreamTheme>
-      <SpeakerLayout participantsBarPosition='bottom' />
-      <CallControls />
-    </StreamTheme>
+    <ScheduleXCalendar calendarApp={calendar}/>
   );
 };
+export default App;

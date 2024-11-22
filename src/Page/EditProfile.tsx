@@ -92,6 +92,16 @@ const EditProfile: React.FC<any> = ({ profileID, name, bio, photo, onlineStatus,
                 });
             })
 
+            axios.get(names.getChatByUserName + name).then((response) => {
+                let chatListByName:any = response.data;
+
+                chatListByName.forEach((element:any) => {
+                    let chatDetail = {chatID: element.chatID, name: updateInformation.name, chatRole: element.chatRole, admin: element.admin, member: element.member, lastDateTime: element.lastDateTime, status: element.status, userID: element.userID}
+
+                    axios.put(names.basicChatAPI, chatDetail);
+                });
+            })
+
             axios.get(names.getThemeByID + updateInformation.themeID).then((response) => {
                 setTimeout(() => {
                     setLoading(false);

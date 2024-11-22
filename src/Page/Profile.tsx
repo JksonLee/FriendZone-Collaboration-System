@@ -97,13 +97,17 @@ const Profile = () => {
 
     axios.post(names.basicActionAPI, actionInformation);
 
+    const logoutUpdate = {profileID: userProfileData.profileID, name: userProfileData.name, photo: userProfileData.photo, bio: userProfileData.bio, onlineStatus: "Offline", userID: userProfileData.userID, themeID: userProfileData.themeID};
+    axios.put(names.basicProfileAPI, logoutUpdate);
+
     navigate('/');
     refreshPage(2);
   }
 
   function handleDeleteAccount() {
     axios.delete(names.getReportByUserID + currentUserID);
-    axios.delete(names.getMessageByUserID + currentUserID);
+    axios.delete(names.getMessageBySenderID + currentUserID);
+    axios.delete(names.getMessageByReceiverID + currentUserID);
     axios.delete(names.getFriendByUserID + currentUserID);
     axios.delete(names.getCalendarByUserID + currentUserID);
     axios.delete(names.getActionByUserID + currentUserID);

@@ -13,6 +13,8 @@ import Report from './Page/Report';
 import ErrorPage from './Page/ErrorPage';
 import FriendProfile from './Page/FriendProfile';
 import VideoCall from './Page/VideoCall';
+import App from './App';
+import ModifyRemark from './Page/ModifyRemark';
 
 
 const Index = () => {
@@ -33,6 +35,7 @@ const Index = () => {
                 <Route path='/Report' element={<Report />}/>
                 <Route path='/ErrorPage' element={<ErrorPage />}/>
                 <Route path='/VideoCall' element={<VideoCall />}/>
+                <Route path='/ModifyRemark' element={<ModifyRemark />}/>
             </Routes>
         </Router>
     </div>
