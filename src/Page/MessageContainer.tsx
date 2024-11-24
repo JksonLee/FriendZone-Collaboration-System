@@ -36,7 +36,7 @@ const MessagesContainer: React.FC<any> = ({ ownMessages, friendMessages, sender,
     function handleAnswerCall(answer:any){
         handleCallAnswer(answer);
         if(answer === "decline"){
-            // refreshPage(2);
+            refreshPage(2);
         }
     }
 

@@ -50,7 +50,7 @@ const FriendList = () => {
   const [pendingProfileDetail, setPendingProfileDetail] = useState<Map<number, ProfileDetail>>(new Map());
   const [value, setValue] = useState(1);
   const navigate = useNavigate();
-  const currentDateTime = new Date();
+  const now = new Date();
 
   // Update the CSS variable dynamically
   document.documentElement.style.setProperty('--backgroundImage', `url('${state.theme}')`);
@@ -222,12 +222,12 @@ const FriendList = () => {
             }
           });
           if (roleExist !== "true") {
-            const formattedDate = currentDateTime.toLocaleString();
+            const currentDate = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
 
-            const newChatRoomOfOwner = { name: friend.name, chatRole: "Individual", admin: currentUserID.toString(), member: friendUserID, lastDateTime: formattedDate, status: "Not Pin", userID: currentUserID }
+            const newChatRoomOfOwner = { name: friend.name, chatRole: "Individual", admin: currentUserID.toString(), member: friendUserID, lastDateTime: currentDate, status: "Not Pin", userID: currentUserID }
             axios.post(names.basicChatAPI, newChatRoomOfOwner);
 
-            const newChatRoomOfOther = { name: currentUserName, chatRole: "Individual", admin: currentUserID.toString(), member: friendUserID, lastDateTime: formattedDate, status: "Not Pin", userID: friendUserID }
+            const newChatRoomOfOther = { name: currentUserName, chatRole: "Individual", admin: currentUserID.toString(), member: friendUserID, lastDateTime: currentDate, status: "Not Pin", userID: friendUserID }
             axios.post(names.basicChatAPI, newChatRoomOfOther);
 
             //Catch ChatID

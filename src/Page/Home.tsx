@@ -1,6 +1,6 @@
 import '../CSS/Home.css'
 import names from '../General/Component';
-import { Avatar, BottomNavigationAction, Box, Button, List, ListItem, Paper, Typography } from '@mui/material';
+import { Avatar, BottomNavigationAction, Box, Button, List, ListItem, Modal, Paper, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { useLocation, useNavigate } from 'react-router-dom';
 import BottomMenuBar from '../General/BottomMenuBar';
@@ -10,8 +10,12 @@ import ChatBox from './ChatBox';
 import { HubConnectionBuilder } from '@microsoft/signalr';
 import SendMessageForm from './SendMessageForm';
 import VideocamIcon from '@mui/icons-material/Videocam';
-import PhoneIcon from '@mui/icons-material/Phone';
 import { refreshPage } from '../General/Functions';
+import SettingsIcon from '@mui/icons-material/Settings';
+import AddIcon from '@mui/icons-material/Add';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import EditChat from './EditChat';
+import AddNewChat from './AddNewChat';
 
 interface UserInformation {
   currentUserID: number;
@@ -79,9 +83,31 @@ const Home = () => {
   const [receiver, setReceiver] = useState<any>();
   const [senderName, setSenderName] = useState<any>();
   const [receiverName, setReceiverName] = useState<any>();
+  const [replyOption, setReplyOption] = useState<any>('');
+  const [chatAssistantList, setChatAssistantList] = useState<any>([]);
+  const [openDelete, setOpenDelete] = useState(false);
+  const handleOpenDelete = () => setOpenDelete(true);
+  const handleCloseDelete = () => setOpenDelete(false);
+  const [openEdit, setOpenEdit] = useState(false);
+  const handleOpenEdit = () => setOpenEdit(true);
+  const handleCloseEdit = () => setOpenEdit(false);
   const messagesEndRef = useRef<any>(null);
   const now = new Date();
   const navigate = useNavigate();
+
+  //Background Modal Design
+  const modalStyle = {
+    position: 'absolute' as 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 600,
+    bgcolor: 'background.paper',
+    borderRadius: '20px',
+    boxShadow: 24,
+    p: 4,
+    maxHeight: '370px',
+  };
 
   // Catch Data From DB
   function getUserData() {
@@ -96,6 +122,10 @@ const Home = () => {
 
     axios.get(names.getChatByID + chatID).then((response) => {
       setSelectedChatData(response.data);
+    });
+
+    axios.get(names.basicChatAssistantAPI).then((response) => {
+      setChatAssistantList(response.data);
     });
   }
 
@@ -138,6 +168,7 @@ const Home = () => {
     );
   }
 
+  // Return The Send Message Bar
   function CustomTabPanel2(props: any) {
     const { children, value, index, ...other } = props;
 
@@ -224,9 +255,30 @@ const Home = () => {
 
         axios.post(names.basicMessageAPI, messageInformation);
 
+        axios.get(names.getProfileByUserName + selectedChatData.name).then((response) => {
+          axios.get(names.getChatByUserID + response.data.userID).then((response) => {
+            (response.data).forEach((element: any) => {
+              if (element.chatRole === "Individual" && element.admin.toString() === selectedChatData.admin && element.member.toString() === selectedChatData.member) {
+                const latestDateTime = `${currentDate}`
+
+                const chatUpdate = { chatID: selectedChatData.chatID, name: selectedChatData.name, chatRole: selectedChatData.chatRole, admin: selectedChatData.admin, member: selectedChatData.member, lastDateTime: latestDateTime, status: selectedChatData.status, userID: selectedChatData.userID }
+
+                axios.put(names.basicChatAPI, chatUpdate);
+
+                const chatUpdate2 = { chatID: element.chatID, name: element.name, chatRole: element.chatRole, admin: element.admin, member: element.member, lastDateTime: latestDateTime, status: element.status, userID: element.userID }
+
+                axios.put(names.basicChatAPI, chatUpdate2);
+              }
+
+            });
+          })
+        })
+
+
         try {
           await connection.invoke('SendMessageToRoom', chatRoom, chatUserName, message);
           setNewMessage('');
+          setReplyOption('');
         } catch (err) {
           console.error('Error sending message: ', err);
         }
@@ -234,6 +286,7 @@ const Home = () => {
         try {
           await connection.invoke('SendMessageToRoom', chatRoom, chatUserName, message);
           setNewMessage('');
+          setReplyOption('');
         } catch (err) {
           console.error('Error sending message: ', err);
         }
@@ -317,8 +370,43 @@ const Home = () => {
     }
   }
 
+  function checkChatAssistent() {
+    const lastMessagesList = messages[messages?.length - 1];
+    const lastMessagesSentence = lastMessagesList?.text;
+    const lastMessagessenderName = lastMessagesList?.user;
+    const lastSortMessageList = sortedData[sortedData?.length - 1];
+    const lastSortMessageSentence = lastSortMessageList?.message;
+    const lastSortMessageSenderID = lastSortMessageList?.senderID;
+
+
+    if (lastMessagesSentence !== undefined) {
+      if (lastMessagessenderName !== userProfileData.name) {
+        chatAssistantList.forEach((element: any) => {
+          if (lastMessagesSentence.toLowerCase().includes(element.keyWord.toLowerCase())) {
+            setReplyOption(element.message);
+          }
+        });
+      }
+    } else if (lastSortMessageSentence !== undefined) {
+      if (lastSortMessageSenderID !== currentUserID) {
+        chatAssistantList.forEach((element: any) => {
+          if (lastSortMessageSentence.toLowerCase().includes(element.keyWord.toLowerCase())) {
+            setReplyOption(element.message);
+          }
+        });
+      }
+    } else {
+      setReplyOption('');
+    }
+  }
+
+  function handleUploadFile() {
+    // navigate('/AddNewChat', { state: userInformationList })
+  }
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    checkChatAssistent()
   }, [messages, sortedData]);
 
   useEffect(() => {
@@ -336,6 +424,8 @@ const Home = () => {
     catchFriendDetail();
   }, [userChatListData]);
 
+  console.log(selectedChatData);
+
   return <div>
     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '97vh' }}>
 
@@ -344,6 +434,24 @@ const Home = () => {
         <Grid container spacing={1}>
           <Grid size={4}>
             <Paper sx={{ width: 400, maxHeight: '420px', overflowY: 'auto', padding: 2, backgroundColor: 'transparent', boxShadow: 'none', '&::-webkit-scrollbar': { width: '8px' }, '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1', borderRadius: '10px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#888', borderRadius: '10px', '&:hover': { backgroundColor: '#555' } } }}>
+
+              <Grid size={1}>
+                <BottomNavigationAction label="Setting" value="setting" onClick={handleOpenDelete} icon={<AddIcon fontSize="small" />} sx={{ '&.Mui-selected': { color: 'rgba(245, 245, 245, 0.9)' }, marginBottom: '-25%', marginLeft: '1250%' }} />
+                <Modal open={openDelete} onClose={handleCloseDelete} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+                  <Box sx={modalStyle}>
+                    <Typography id="modal-modal-title" variant="h4" component="h2" sx={{ textAlign: 'center', marginBottom: 4, color: 'black' }}>
+                      Add New Chat
+                    </Typography>
+                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                      <Grid size={12} sx={{ color: 'black' }}>
+                        <Typography>
+                          <AddNewChat currentUserID={currentUserID} userInformationList={userInformationList} />
+                        </Typography>
+                      </Grid>
+                    </Typography>
+                  </Box>
+                </Modal>
+              </Grid>
 
               {/* Display The User Selected Chat Room */}
               <List>
@@ -357,16 +465,15 @@ const Home = () => {
                               <Avatar alt={friendProfileDetail.get(chat.chatID)?.name} src={friendProfileDetail.get(chat.chatID)?.photo} sx={{ width: 35, height: 35, alignItems: 'center', border: '3px solid', borderColor: checkOnlineStatus(friendProfileDetail.get(chat.chatID)?.onlineStatus) }} />
                             </Grid>
                             <Grid size={3}>
-                              <Typography variant="h4" sx={{ fontSize: '30px' }}><strong>{chat.name}</strong></Typography>
+                              <Typography variant="h4" sx={{ fontSize: '20px' }}><strong>{chat.name.slice(0, 10)}</strong></Typography>
                             </Grid>
                             <Grid size={1}>
                             </Grid>
                             <Grid size={4}>
-                              <Typography variant="h4" sx={{ fontSize: '15px', marginBottom: '5%' }}><strong>Messages</strong></Typography>
+                              <Typography variant="h4" sx={{ fontSize: '12px', marginBottom: '5%', marginLeft: '-15%' }}>{chat.chatRole} Chatbox</Typography>
                               <Typography variant="h4" sx={{ fontSize: '10px' }}><strong>{chat.lastDateTime}</strong></Typography>
                             </Grid>
                             <Grid size={2}>
-                              <Button>Hi</Button>
                             </Grid>
                           </Grid>
                         </Paper>
@@ -388,16 +495,15 @@ const Home = () => {
                               <Avatar alt={friendProfileDetail.get(chat.chatID)?.name} src={friendProfileDetail.get(chat.chatID)?.photo} sx={{ width: 35, height: 35, alignItems: 'center', border: '3px solid', borderColor: checkOnlineStatus(friendProfileDetail.get(chat.chatID)?.onlineStatus) }} />
                             </Grid>
                             <Grid size={3}>
-                              <Typography variant="h4" sx={{ fontSize: '30px' }}><strong>{chat.name}</strong></Typography>
+                              <Typography variant="h4" sx={{ fontSize: '20px' }}><strong>{chat.name.slice(0, 10)}</strong></Typography>
                             </Grid>
                             <Grid size={1}>
                             </Grid>
                             <Grid size={4}>
-                              <Typography variant="h4" sx={{ fontSize: '15px', marginBottom: '5%' }}><strong>Messages</strong></Typography>
-                              <Typography variant="h4" sx={{ fontSize: '10px' }}><strong>{chat.lastDateTime}</strong></Typography>
+                              <Typography variant="h4" sx={{ fontSize: '12px', marginBottom: '5%', marginLeft: '-15%' }}>{chat.chatRole} Chatbox</Typography>
+                              <Typography variant="h4" sx={{ fontSize: '12px', marginLeft: '-15%' }}><strong><i>{chat.lastDateTime}</i></strong></Typography>
                             </Grid>
                             <Grid size={2}>
-                              <Button>Hi</Button>
                             </Grid>
                           </Grid>
                         </Paper>
@@ -419,16 +525,15 @@ const Home = () => {
                               <Avatar alt={friendProfileDetail.get(chat.chatID)?.name} src={friendProfileDetail.get(chat.chatID)?.photo} sx={{ width: 35, height: 35, alignItems: 'center', border: '3px solid', borderColor: checkOnlineStatus(friendProfileDetail.get(chat.chatID)?.onlineStatus) }} />
                             </Grid>
                             <Grid size={3}>
-                              <Typography variant="h4" sx={{ fontSize: '30px' }}><strong>{chat.name}</strong></Typography>
+                              <Typography variant="h4" sx={{ fontSize: '20px' }}><strong>{chat.name.slice(0, 10)}</strong></Typography>
                             </Grid>
                             <Grid size={1}>
                             </Grid>
                             <Grid size={4}>
-                              <Typography variant="h4" sx={{ fontSize: '15px', marginBottom: '5%' }}><strong>Messages</strong></Typography>
-                              <Typography variant="h4" sx={{ fontSize: '10px' }}><strong>{chat.lastDateTime}</strong></Typography>
+                              <Typography variant="h4" sx={{ fontSize: '12px', marginBottom: '5%', marginLeft: '-15%' }}>{chat.chatRole} Chatbox</Typography>
+                              <Typography variant="h4" sx={{ fontSize: '12px', marginLeft: '-15%' }}><strong><i>{chat.lastDateTime}</i></strong></Typography>
                             </Grid>
                             <Grid size={2}>
-                              <Button>Hi</Button>
                             </Grid>
                           </Grid>
                         </Paper>
@@ -446,20 +551,17 @@ const Home = () => {
                       <ListItem key={chat.chatID} onClick={() => handleChat(chat)}>
                         <Paper sx={{ padding: 2, width: 1000, color: 'black', borderRadius: '40px', maxHeight: '40px' }}>
                           <Grid container spacing={1} alignItems="center">
-                            <Grid size={2} >
+                            <Grid size={2}>
                               <Avatar alt={friendProfileDetail.get(chat.chatID)?.name} src={friendProfileDetail.get(chat.chatID)?.photo} sx={{ width: 35, height: 35, alignItems: 'center', border: '3px solid', borderColor: checkOnlineStatus(friendProfileDetail.get(chat.chatID)?.onlineStatus) }} />
                             </Grid>
-                            <Grid size={3}>
-                              <Typography variant="h4" sx={{ fontSize: '30px' }}><strong>{chat.name}</strong></Typography>
-                            </Grid>
-                            <Grid size={1}>
+                            <Grid size={5}>
+                              <Typography variant="h4" sx={{ fontSize: '20px' }}><strong>{chat.name.slice(0, 10)}</strong></Typography>
                             </Grid>
                             <Grid size={4}>
-                              <Typography variant="h4" sx={{ fontSize: '15px', marginBottom: '5%' }}><strong>Messages</strong></Typography>
-                              <Typography variant="h4" sx={{ fontSize: '10px' }}><strong>{chat.lastDateTime}</strong></Typography>
+                              <Typography variant="h4" sx={{ fontSize: '12px', marginBottom: '5%' }}>{chat.chatRole} Chatbox</Typography>
+                              <Typography variant="h4" sx={{ fontSize: '12px' }}><strong><i>{chat.lastDateTime}</i></strong></Typography>
                             </Grid>
-                            <Grid size={2}>
-                              <Button>Hi</Button>
+                            <Grid size={1}>
                             </Grid>
                           </Grid>
                         </Paper>
@@ -529,15 +631,51 @@ const Home = () => {
               {parseInt(selectedChatData.admin) === currentUserID ?
                 (<Grid container spacing={1}>
                   <Grid size={4}></Grid>
-                  <Grid size={5}></Grid>
-                  <Grid size={1}><BottomNavigationAction label="Video Call" value="home" onClick={() => handleVideoCall()} icon={<VideocamIcon fontSize="small" />} sx={{ '&.Mui-selected': { color: 'rgba(245, 245, 245, 0.9)' } }} /></Grid>
+                  <Grid size={3}></Grid>
+                  <Grid size={1}><BottomNavigationAction label="Setting" value="setting" onClick={() => handleUploadFile()} icon={<UploadFileIcon fontSize="small" />} sx={{ '&.Mui-selected': { color: 'rgba(245, 245, 245, 0.9)' } }} /></Grid>
+                  <Grid size={1}>
+                    <BottomNavigationAction label="Setting" value="setting" onClick={handleOpenEdit} icon={<SettingsIcon fontSize="small" />} sx={{ '&.Mui-selected': { color: 'rgba(245, 245, 245, 0.9)' } }} />
+                    <Modal open={openEdit} onClose={handleCloseEdit} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+                      <Box sx={modalStyle}>
+                        <Typography id="modal-modal-title" variant="h4" component="h2" sx={{ textAlign: 'center', marginBottom: 4, color: 'black' }}>
+                          Edit Chat
+                        </Typography>
+                        <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                          <Grid size={12} sx={{ color: 'black' }}>
+                            <Typography>
+                              <EditChat selectedChatData={selectedChatData} userInformationList={userInformationList} />
+                            </Typography>
+                          </Grid>
+                        </Typography>
+                      </Box>
+                    </Modal>
+                  </Grid>
+                  <Grid size={1}><BottomNavigationAction label="Video Call" value="videoCall" onClick={() => handleVideoCall()} icon={<VideocamIcon fontSize="small" />} sx={{ '&.Mui-selected': { color: 'rgba(245, 245, 245, 0.9)' } }} /></Grid>
                 </Grid>) :
                 (<Grid container spacing={1}>
                   <Grid size={4}></Grid>
-                  <Grid size={5}></Grid>
-                  <Grid size={1}><BottomNavigationAction label="Video Call" value="home" onClick={() => handleVideoCall()} icon={<VideocamIcon fontSize="small" />} sx={{ '&.Mui-selected': { color: 'rgba(245, 245, 245, 0.9)' } }} /></Grid>
+                  <Grid size={3}></Grid>
+                  <Grid size={1}><BottomNavigationAction label="Setting" value="setting" onClick={() => handleUploadFile()} icon={<UploadFileIcon fontSize="small" />} sx={{ '&.Mui-selected': { color: 'rgba(245, 245, 245, 0.9)' } }} /></Grid>
+                  <Grid size={1}>
+                    <BottomNavigationAction label="Setting" value="setting" onClick={handleOpenEdit} icon={<SettingsIcon fontSize="small" />} sx={{ '&.Mui-selected': { color: 'rgba(245, 245, 245, 0.9)' } }} />
+                    <Modal open={openEdit} onClose={handleCloseEdit} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+                      <Box sx={modalStyle}>
+                        <Typography id="modal-modal-title" variant="h4" component="h2" sx={{ textAlign: 'center', marginBottom: 4, color: 'black' }}>
+                          Edit Chat
+                        </Typography>
+                        <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                          <Grid size={12} sx={{ color: 'black' }}>
+                            <Typography>
+                              <EditChat selectedChatData={selectedChatData} userInformationList={userInformationList} />
+                            </Typography>
+                          </Grid>
+                        </Typography>
+                      </Box>
+                    </Modal>
+                  </Grid>
+                  <Grid size={1}><BottomNavigationAction label="Video Call" value="videoCall" onClick={() => handleVideoCall()} icon={<VideocamIcon fontSize="small" />} sx={{ '&.Mui-selected': { color: 'rgba(245, 245, 245, 0.9)' } }} /></Grid>
                 </Grid>)}
-              <SendMessageForm sendMessage={sendMessage} ownerChatID={value} friendChatID={friendValue} currentUserID={currentUserID} selectedChatData={selectedChatData} />
+              <SendMessageForm sendMessage={sendMessage} replyOption={replyOption} />
             </CustomTabPanel2>
 
           </Grid>
