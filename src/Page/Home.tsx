@@ -1,6 +1,6 @@
 import '../CSS/Home.css'
 import names from '../General/Component';
-import { Avatar, BottomNavigationAction, Box, Button, List, ListItem, Modal, Paper, Typography } from '@mui/material';
+import { Avatar, BottomNavigationAction, Box, List, ListItem, Modal, Paper, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { useLocation, useNavigate } from 'react-router-dom';
 import BottomMenuBar from '../General/BottomMenuBar';
@@ -69,8 +69,9 @@ const Home = () => {
   const [selectedChatData, setSelectedChatData] = useState<any>([]);
   const [friendThemeDetail, setFriendThemeDetail] = useState<Map<number, ThemeDetail>>(new Map());
   const [friendProfileDetail, setFriendProfileDetail] = useState<Map<number, ProfileDetail>>(new Map());
+  const [friendListDetail, setFriendListDetail] = useState<Map<number, ProfileDetail>>(new Map());
   const [value, setValue] = useState(0);
-  const [friendValue, setFriendValue] = useState(0);
+  const [friendValue, setFriendValue] = useState<any>();
   const [connection, setConnection] = useState<any>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
@@ -117,7 +118,7 @@ const Home = () => {
     });
 
     axios.get(names.getChatByUserID + currentUserID).then((response) => {
-      setUserChatListData(response.data);
+      setUserChatListData([...response.data].sort((a, b) => a.name.localeCompare(b.name)));
     });
 
     axios.get(names.getChatByID + chatID).then((response) => {
@@ -197,15 +198,21 @@ const Home = () => {
       })
     })
 
-    axios.get(names.getProfileByUserName + chat.name).then((response) => {
-      axios.get(names.getChatByUserID + response.data.userID).then((response) => {
-        (response.data).forEach((element: any) => {
-          if (element.name === userProfileData.name) {
-            setFriendValue(element.chatID);
-          }
-        });
+    if (chat.chatRole === "Individual") {
+      axios.get(names.getProfileByUserName + chat.name).then((response) => {
+        axios.get(names.getChatByUserID + response.data.userID).then((response) => {
+          (response.data).forEach((element: any) => {
+            if (element.name === userProfileData.name) {
+              setFriendValue(element.chatID);
+            }
+          });
+        })
       })
-    })
+    } else if (chat.chatRole === "Group") {
+      axios.get(names.getChatByID + chat.chatID).then((response) => {
+        setFriendValue(response.data.member);
+      })
+    }
   }
 
   //Connect To The SignalR
@@ -251,30 +258,78 @@ const Home = () => {
         const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
 
 
-        const messageInformation = { senderID: sender, receiverID: receiver, message: message, date: currentDate, time: currentTime, chatID: value };
+        if (selectedChatData.chatRole === "Individual") {
+          const messageInformation = { senderID: sender, receiverID: receiver, message: message, date: currentDate, time: currentTime, chatID: value };
 
-        axios.post(names.basicMessageAPI, messageInformation);
+          axios.post(names.basicMessageAPI, messageInformation);
 
-        axios.get(names.getProfileByUserName + selectedChatData.name).then((response) => {
-          axios.get(names.getChatByUserID + response.data.userID).then((response) => {
-            (response.data).forEach((element: any) => {
-              if (element.chatRole === "Individual" && element.admin.toString() === selectedChatData.admin && element.member.toString() === selectedChatData.member) {
-                const latestDateTime = `${currentDate}`
+          axios.get(names.getProfileByUserName + selectedChatData.name).then((response) => {
+            axios.get(names.getChatByUserID + response.data.userID).then((response) => {
+              (response.data).forEach((element: any) => {
+                if (element.chatRole === "Individual" && element.admin.toString() === selectedChatData.admin && element.member.toString() === selectedChatData.member) {
+                  const latestDateTime = `${currentDate}`
 
-                const chatUpdate = { chatID: selectedChatData.chatID, name: selectedChatData.name, chatRole: selectedChatData.chatRole, admin: selectedChatData.admin, member: selectedChatData.member, lastDateTime: latestDateTime, status: selectedChatData.status, userID: selectedChatData.userID }
+                  const chatUpdate = { chatID: selectedChatData.chatID, name: selectedChatData.name, chatRole: selectedChatData.chatRole, admin: selectedChatData.admin, member: selectedChatData.member, lastDateTime: latestDateTime, status: selectedChatData.status, userID: selectedChatData.userID }
 
-                axios.put(names.basicChatAPI, chatUpdate);
+                  axios.put(names.basicChatAPI, chatUpdate);
 
-                const chatUpdate2 = { chatID: element.chatID, name: element.name, chatRole: element.chatRole, admin: element.admin, member: element.member, lastDateTime: latestDateTime, status: element.status, userID: element.userID }
+                  const chatUpdate2 = { chatID: element.chatID, name: element.name, chatRole: element.chatRole, admin: element.admin, member: element.member, lastDateTime: latestDateTime, status: element.status, userID: element.userID }
 
-                axios.put(names.basicChatAPI, chatUpdate2);
-              }
+                  axios.put(names.basicChatAPI, chatUpdate2);
+                }
 
-            });
+              });
+            })
           })
-        })
+        } else if (selectedChatData.chatRole === "Group") {
+          (friendValue.split(', ')).forEach((element: any) => {
+            if (element === currentUserID) {
+              const messageInformation = { senderID: sender, receiverID: parseInt(selectedChatData.admin), message: message, date: currentDate, time: currentTime, chatID: value };
 
+              axios.post(names.basicMessageAPI, messageInformation);
 
+              axios.get(names.getChatByUserID + parseInt(selectedChatData.admin)).then((response) => {
+                (response.data).forEach((element: any) => {
+                  if (element.chatRole === "Group" && element.admin === selectedChatData.admin && element.member === friendValue) {
+                    const latestDateTime = `${currentDate}`
+
+                    const chatUpdate = { chatID: selectedChatData.chatID, name: selectedChatData.name, chatRole: selectedChatData.chatRole, admin: selectedChatData.admin, member: selectedChatData.member, lastDateTime: latestDateTime, status: selectedChatData.status, userID: selectedChatData.userID }
+
+                    axios.put(names.basicChatAPI, chatUpdate);
+
+                    const chatUpdate2 = { chatID: element.chatID, name: element.name, chatRole: element.chatRole, admin: element.admin, member: element.member, lastDateTime: latestDateTime, status: element.status, userID: element.userID }
+
+                    axios.put(names.basicChatAPI, chatUpdate2);
+                  }
+                })
+              })
+            } else if (element !== currentUserID) {
+              const friendValueInInt = parseInt(element);
+              axios.get(names.getProfileByID + friendValueInInt).then((response) => {
+                const friendUserID = response.data.userID;
+                const messageInformation = { senderID: sender, receiverID: friendUserID, message: message, date: currentDate, time: currentTime, chatID: value };
+
+                axios.post(names.basicMessageAPI, messageInformation);
+
+                axios.get(names.getChatByUserID + friendUserID).then((response) => {
+                  (response.data).forEach((element: any) => {
+                    if (element.chatRole === "Group" && element.admin === selectedChatData.admin && element.member === friendValue) {
+                      const latestDateTime = `${currentDate}`
+
+                      const chatUpdate = { chatID: selectedChatData.chatID, name: selectedChatData.name, chatRole: selectedChatData.chatRole, admin: selectedChatData.admin, member: selectedChatData.member, lastDateTime: latestDateTime, status: selectedChatData.status, userID: selectedChatData.userID }
+
+                      axios.put(names.basicChatAPI, chatUpdate);
+
+                      const chatUpdate2 = { chatID: element.chatID, name: element.name, chatRole: element.chatRole, admin: element.admin, member: element.member, lastDateTime: latestDateTime, status: element.status, userID: element.userID }
+
+                      axios.put(names.basicChatAPI, chatUpdate2);
+                    }
+                  })
+                })
+              })
+            }
+          })
+        }
         try {
           await connection.invoke('SendMessageToRoom', chatRoom, chatUserName, message);
           setNewMessage('');
@@ -308,13 +363,75 @@ const Home = () => {
   };
 
   function getMessageData() {
-    axios.get(names.getMessageByChatID + value).then((response) => {
-      setOwnMessage(response.data);
-    })
+    if (typeof friendValue === 'number') {
+      axios.get(names.getMessageByChatID + value).then((response) => {
+        setOwnMessage(response.data);
+      })
+    } else if (typeof friendValue === 'string') {
+      const newMessagesCombineOwn: MessageList[] = [];
+      axios.get(names.getMessageByChatID + value).then((response) => {
+        let previousMessage = "";
+        (response.data).forEach((element: any) => {
+          const currentMessage = element.message;
+          if (previousMessage !== currentMessage) {
+            newMessagesCombineOwn.push(element)
+          }
+          previousMessage = currentMessage
+        });
+        setOwnMessage(newMessagesCombineOwn);
+      })
+    }
 
-    axios.get(names.getMessageByChatID + friendValue).then((response) => {
-      setFriendMessage(response.data);
-    })
+
+    if (typeof friendValue === 'number') {
+      axios.get(names.getMessageByChatID + friendValue).then((response) => {
+        setFriendMessage(response.data);
+      })
+    } else if (typeof friendValue === 'string') {
+      const newMessagesCombine: MessageList[] = [];
+
+      (friendValue.split(', ')).forEach((element: any) => {
+        if (parseInt(element) !== currentUserID) {
+          axios.get(names.getProfileByUserID + parseInt(element)).then((response) => {
+            axios.get(names.getChatByUserID + response.data.userID).then((response) => {
+              (response.data).forEach((element: any) => {
+                if (element.admin === selectedChatData.admin && element.member === selectedChatData.member && element.chatRole === "Group") {
+                  axios.get(names.getMessageByChatID + element.chatID).then((response) => {
+                    let previousMessage = "";
+                    (response.data).forEach((element: any) => {
+                      const currentMessage = element.message;
+                      if (previousMessage !== currentMessage) {
+                        newMessagesCombine.push(element)
+                      }
+                      previousMessage = currentMessage
+                    });
+                  })
+                }
+              });
+            })
+          })
+        } else if (parseInt(element) === currentUserID) {
+          axios.get(names.getChatByUserID + parseInt(selectedChatData.admin)).then((response) => {
+            (response.data).forEach((element: any) => {
+              if (element.admin === selectedChatData.admin && element.member === selectedChatData.member && element.chatRole === "Group") {
+                axios.get(names.getMessageByChatID + element.chatID).then((response) => {
+                  let previousMessage = "";
+                  (response.data).forEach((element: any) => {
+                    const currentMessage = element.message;
+                    if (previousMessage !== currentMessage) {
+                      newMessagesCombine.push(element)
+                    }
+                    previousMessage = currentMessage
+                  });
+                })
+              }
+            });
+          })
+        }
+      });
+      setFriendMessage(newMessagesCombine);
+    }
+
 
     axios.get(names.getChatByID + value).then((response) => {
       setSender(response.data.userID);
@@ -323,12 +440,26 @@ const Home = () => {
       })
     })
 
-    axios.get(names.getChatByID + friendValue).then((response) => {
-      setReceiver(response.data.userID);
-      axios.get(names.getProfileByUserID + response.data.userID).then((response) => {
-        setReceiverName(response.data.name);
+    if (typeof friendValue === 'number') {
+      axios.get(names.getChatByID + friendValue).then((response) => {
+        setReceiver(response.data.userID);
+        axios.get(names.getProfileByUserID + response.data.userID).then((response) => {
+          setReceiverName(response.data.name);
+        })
       })
-    })
+    } else if (typeof friendValue === 'string') {
+      (friendValue.split(', ')).forEach((element: any) => {
+        if (parseInt(element) !== currentUserID) {
+          axios.get(names.getProfileByID + parseInt(element)).then((response) => {
+            setFriendListDetail(prev => new Map(prev).set(parseInt(element), response.data));
+          })
+        } else if (parseInt(element) === currentUserID) {
+          axios.get(names.getProfileByUserID + parseInt(selectedChatData.admin)).then((response) => {
+            setFriendListDetail(prev => new Map(prev).set(parseInt(selectedChatData.admin), response.data));
+          })
+        }
+      });
+    }
   }
 
   //Combine Two Data Set Into One Data Set
@@ -355,7 +486,6 @@ const Home = () => {
 
   function handleCallAnswer(answer: any) {
     if (answer === "join") {
-      // console.log("call start")
       sendMessage("Accept Video Call");
       const userInformation = { chatID: chatRoom, userName: senderName, currentUserID: state.currentUserID, theme: state.theme, themeID: state.themeID, token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3Byb250by5nZXRzdHJlYW0uaW8iLCJzdWIiOiJ1c2VyL1dlZGdlX0FudGlsbGVzIiwidXNlcl9pZCI6IldlZGdlX0FudGlsbGVzIiwidmFsaWRpdHlfaW5fc2Vjb25kcyI6NjA0ODAwLCJpYXQiOjE3MzIyMDU2ODAsImV4cCI6MTczMjgxMDQ4MH0.5v6JVKjD4-nP0Fn71KkuIy_iqdz6lwWnDzopcLFjids', userId: 'Wedge_Antilles' };
       navigate('/VideoCall', { state: userInformation });
@@ -400,10 +530,6 @@ const Home = () => {
     }
   }
 
-  function handleUploadFile() {
-    // navigate('/AddNewChat', { state: userInformationList })
-  }
-
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     checkChatAssistent()
@@ -423,8 +549,6 @@ const Home = () => {
   useEffect(() => {
     catchFriendDetail();
   }, [userChatListData]);
-
-  console.log(selectedChatData);
 
   return <div>
     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '97vh' }}>
@@ -464,16 +588,14 @@ const Home = () => {
                             <Grid size={2} >
                               <Avatar alt={friendProfileDetail.get(chat.chatID)?.name} src={friendProfileDetail.get(chat.chatID)?.photo} sx={{ width: 35, height: 35, alignItems: 'center', border: '3px solid', borderColor: checkOnlineStatus(friendProfileDetail.get(chat.chatID)?.onlineStatus) }} />
                             </Grid>
-                            <Grid size={3}>
-                              <Typography variant="h4" sx={{ fontSize: '20px' }}><strong>{chat.name.slice(0, 10)}</strong></Typography>
-                            </Grid>
-                            <Grid size={1}>
+                            <Grid size={5}>
+                              <Typography variant="h4" sx={{ fontSize: '20px' }}><strong>{chat.name.slice(0, 10)}{chat.name.length > 10 ? (<Typography>...</Typography>) : (<Typography></Typography>)}</strong></Typography>
                             </Grid>
                             <Grid size={4}>
-                              <Typography variant="h4" sx={{ fontSize: '12px', marginBottom: '5%', marginLeft: '-15%' }}>{chat.chatRole} Chatbox</Typography>
-                              <Typography variant="h4" sx={{ fontSize: '10px' }}><strong>{chat.lastDateTime}</strong></Typography>
+                              <Typography variant="h4" sx={{ fontSize: '12px', marginBottom: '5%' }}>{chat.chatRole} Chatbox</Typography>
+                              <Typography variant="h4" sx={{ fontSize: '12px' }}><strong><i>{chat.lastDateTime}</i></strong></Typography>
                             </Grid>
-                            <Grid size={2}>
+                            <Grid size={1}>
                             </Grid>
                           </Grid>
                         </Paper>
@@ -494,16 +616,14 @@ const Home = () => {
                             <Grid size={2} >
                               <Avatar alt={friendProfileDetail.get(chat.chatID)?.name} src={friendProfileDetail.get(chat.chatID)?.photo} sx={{ width: 35, height: 35, alignItems: 'center', border: '3px solid', borderColor: checkOnlineStatus(friendProfileDetail.get(chat.chatID)?.onlineStatus) }} />
                             </Grid>
-                            <Grid size={3}>
-                              <Typography variant="h4" sx={{ fontSize: '20px' }}><strong>{chat.name.slice(0, 10)}</strong></Typography>
-                            </Grid>
-                            <Grid size={1}>
+                            <Grid size={5}>
+                              <Typography variant="h4" sx={{ fontSize: '20px' }}><strong>{chat.name.slice(0, 10)}{chat.name.length > 10 ? (<Typography>...</Typography>) : (<Typography></Typography>)}</strong></Typography>
                             </Grid>
                             <Grid size={4}>
-                              <Typography variant="h4" sx={{ fontSize: '12px', marginBottom: '5%', marginLeft: '-15%' }}>{chat.chatRole} Chatbox</Typography>
-                              <Typography variant="h4" sx={{ fontSize: '12px', marginLeft: '-15%' }}><strong><i>{chat.lastDateTime}</i></strong></Typography>
+                              <Typography variant="h4" sx={{ fontSize: '12px', marginBottom: '5%' }}>{chat.chatRole} Chatbox</Typography>
+                              <Typography variant="h4" sx={{ fontSize: '12px' }}><strong><i>{chat.lastDateTime}</i></strong></Typography>
                             </Grid>
-                            <Grid size={2}>
+                            <Grid size={1}>
                             </Grid>
                           </Grid>
                         </Paper>
@@ -524,16 +644,14 @@ const Home = () => {
                             <Grid size={2} >
                               <Avatar alt={friendProfileDetail.get(chat.chatID)?.name} src={friendProfileDetail.get(chat.chatID)?.photo} sx={{ width: 35, height: 35, alignItems: 'center', border: '3px solid', borderColor: checkOnlineStatus(friendProfileDetail.get(chat.chatID)?.onlineStatus) }} />
                             </Grid>
-                            <Grid size={3}>
-                              <Typography variant="h4" sx={{ fontSize: '20px' }}><strong>{chat.name.slice(0, 10)}</strong></Typography>
-                            </Grid>
-                            <Grid size={1}>
+                            <Grid size={5}>
+                              <Typography variant="h4" sx={{ fontSize: '20px' }}><strong>{chat.name.slice(0, 10)}{chat.name.length > 10 ? (<Typography>...</Typography>) : (<Typography></Typography>)}</strong></Typography>
                             </Grid>
                             <Grid size={4}>
-                              <Typography variant="h4" sx={{ fontSize: '12px', marginBottom: '5%', marginLeft: '-15%' }}>{chat.chatRole} Chatbox</Typography>
-                              <Typography variant="h4" sx={{ fontSize: '12px', marginLeft: '-15%' }}><strong><i>{chat.lastDateTime}</i></strong></Typography>
+                              <Typography variant="h4" sx={{ fontSize: '12px', marginBottom: '5%' }}>{chat.chatRole} Chatbox</Typography>
+                              <Typography variant="h4" sx={{ fontSize: '12px' }}><strong><i>{chat.lastDateTime}</i></strong></Typography>
                             </Grid>
-                            <Grid size={2}>
+                            <Grid size={1}>
                             </Grid>
                           </Grid>
                         </Paper>
@@ -555,7 +673,7 @@ const Home = () => {
                               <Avatar alt={friendProfileDetail.get(chat.chatID)?.name} src={friendProfileDetail.get(chat.chatID)?.photo} sx={{ width: 35, height: 35, alignItems: 'center', border: '3px solid', borderColor: checkOnlineStatus(friendProfileDetail.get(chat.chatID)?.onlineStatus) }} />
                             </Grid>
                             <Grid size={5}>
-                              <Typography variant="h4" sx={{ fontSize: '20px' }}><strong>{chat.name.slice(0, 10)}</strong></Typography>
+                              <Typography variant="h4" sx={{ fontSize: '20px' }}><strong>{chat.name.slice(0, 10)}{chat.name.length > 10 ? (<Typography>...</Typography>) : (<Typography></Typography>)}</strong></Typography>
                             </Grid>
                             <Grid size={4}>
                               <Typography variant="h4" sx={{ fontSize: '12px', marginBottom: '5%' }}>{chat.chatRole} Chatbox</Typography>
@@ -600,7 +718,8 @@ const Home = () => {
                     } else if (m.senderID !== currentUserID) {
                       return <div key={m.messageID}>
                         <Typography variant="subtitle1" gutterBottom sx={{ color: "black" }}>
-                          <b>{receiverName}</b>
+                          <b>{receiverName !== undefined ? (receiverName) :
+                            (m.senderID === currentUserID ? (<Typography><b>{friendListDetail.get(parseInt(selectedChatData.admin))?.name}</b></Typography>) : (<Typography><b>{friendListDetail.get(m.senderID)?.name}</b></Typography>))}</b>
                         </Typography>
                         <Paper sx={{
                           maxWidth: 300, padding: 1, backgroundColor: 'white', boxShadow: 'none', marginBottom: '3%',
@@ -631,8 +750,7 @@ const Home = () => {
               {parseInt(selectedChatData.admin) === currentUserID ?
                 (<Grid container spacing={1}>
                   <Grid size={4}></Grid>
-                  <Grid size={3}></Grid>
-                  <Grid size={1}><BottomNavigationAction label="Setting" value="setting" onClick={() => handleUploadFile()} icon={<UploadFileIcon fontSize="small" />} sx={{ '&.Mui-selected': { color: 'rgba(245, 245, 245, 0.9)' } }} /></Grid>
+                  <Grid size={4}></Grid>
                   <Grid size={1}>
                     <BottomNavigationAction label="Setting" value="setting" onClick={handleOpenEdit} icon={<SettingsIcon fontSize="small" />} sx={{ '&.Mui-selected': { color: 'rgba(245, 245, 245, 0.9)' } }} />
                     <Modal open={openEdit} onClose={handleCloseEdit} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
@@ -654,8 +772,7 @@ const Home = () => {
                 </Grid>) :
                 (<Grid container spacing={1}>
                   <Grid size={4}></Grid>
-                  <Grid size={3}></Grid>
-                  <Grid size={1}><BottomNavigationAction label="Setting" value="setting" onClick={() => handleUploadFile()} icon={<UploadFileIcon fontSize="small" />} sx={{ '&.Mui-selected': { color: 'rgba(245, 245, 245, 0.9)' } }} /></Grid>
+                  <Grid size={4}></Grid>
                   <Grid size={1}>
                     <BottomNavigationAction label="Setting" value="setting" onClick={handleOpenEdit} icon={<SettingsIcon fontSize="small" />} sx={{ '&.Mui-selected': { color: 'rgba(245, 245, 245, 0.9)' } }} />
                     <Modal open={openEdit} onClose={handleCloseEdit} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">

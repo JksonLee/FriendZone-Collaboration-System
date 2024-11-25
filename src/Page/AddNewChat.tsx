@@ -93,7 +93,7 @@ const EditProfile: React.FC<any> = ({ currentUserID, userInformationList }) => {
         if (data.selectedOptions.length !== 0) {
             if (data.selectedOptions.length === 1) {
                 const friendProfileID = parseInt(data.selectedOptions.join(', '));
-                axios.get(names.getProfileByUserID + friendProfileID).then((response) => {
+                axios.get(names.getProfileByID + friendProfileID).then((response) => {
                     const friendUserID = response.data.userID.toString();
                     const friendProfileDetail = response.data;
                     axios.get(names.getChatByUserID + currentUserID).then((response) => {
