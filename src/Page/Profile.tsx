@@ -109,6 +109,11 @@ const Profile = () => {
     axios.delete(names.getMessageBySenderID + currentUserID);
     axios.delete(names.getMessageByReceiverID + currentUserID);
     axios.delete(names.getFriendByUserID + currentUserID);
+    axios.get(names.getFriendByUserName + userProfileData.name).then((response) => {
+      (response.data).forEach((element:any) => {
+        axios.delete(names.getFriendByID + element.friendID);
+      });
+    })
     axios.delete(names.getCalendarByUserID + currentUserID);
     axios.delete(names.getActionByUserID + currentUserID);
     axios.delete(names.getChatByUserID + currentUserID);
