@@ -13,9 +13,7 @@ import Report from './Page/Report';
 import ErrorPage from './Page/ErrorPage';
 import FriendProfile from './Page/FriendProfile';
 import VideoCall from './Page/VideoCall';
-import App from './App';
 import ModifyRemark from './Page/ModifyRemark';
-import Call from './Page/Call';
 
 
 const Index = () => {

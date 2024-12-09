@@ -1,8 +1,8 @@
-import { Button, TextField, CircularProgress, Select, MenuItem, Box, Paper, Typography } from '@mui/material';
+import { Button, TextField, CircularProgress, Box, Paper, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import names from '../General/Component';
 import axios from 'axios';
@@ -76,12 +76,6 @@ const ModifyRemark = () => {
             navigate('/Calendar', { state: userInformationList })
             refreshPage(2);
         }
-
-        // const newRemark = { remarkID: remarkID, inform: data.inform, startDate: data.startDate, startTime: data.startTime, endDate: data.endDate, endTime: data.endTime, userID: currentUserID }
-
-        // axios.put(names.basicCalendarAPI, newRemark);
-        // navigate('/Calendar', { state: userInformationList });
-        // refreshPage(2);
     };
 
 

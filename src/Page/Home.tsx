@@ -13,7 +13,6 @@ import VideocamIcon from '@mui/icons-material/Videocam';
 import { refreshPage } from '../General/Functions';
 import SettingsIcon from '@mui/icons-material/Settings';
 import AddIcon from '@mui/icons-material/Add';
-import UploadFileIcon from '@mui/icons-material/UploadFile';
 import EditChat from './EditChat';
 import AddNewChat from './AddNewChat';
 
@@ -479,7 +478,7 @@ const Home = () => {
   function handleVideoCall() {
     sendMessage("Video Call Request");
 
-    const userInformation = { chatID: chatRoom, userName: userProfileData.name, currentUserID: state.currentUserID, theme: state.theme, themeID: state.themeID, token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3Byb250by5nZXRzdHJlYW0uaW8iLCJzdWIiOiJ1c2VyL0RhcnRoX01hdWwiLCJ1c2VyX2lkIjoiRGFydGhfTWF1bCIsInZhbGlkaXR5X2luX3NlY29uZHMiOjYwNDgwMCwiaWF0IjoxNzMyMTE1NDgyLCJleHAiOjE3MzI3MjAyODJ9.pyoqrsgoN67yZdCKeBGL9-m-u6Trgg85eQcuwUpzWUE', userId: 'Darth_Maul' };
+    const userInformation = { chatID: chatRoom, userName: userProfileData.name, currentUserID: state.currentUserID, theme: state.theme, themeID: state.themeID, token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3Byb250by5nZXRzdHJlYW0uaW8iLCJzdWIiOiJ1c2VyL0tpdF9GaXN0byIsInVzZXJfaWQiOiJLaXRfRmlzdG8iLCJ2YWxpZGl0eV9pbl9zZWNvbmRzIjo2MDQ4MDAsImlhdCI6MTczMzczOTU5NywiZXhwIjoxNzM0MzQ0Mzk3fQ.TRsfYN3-RSTSgiP0bmkVyYN4qQ553Ivq-vq4u61wm2M', userId: 'Kit_Fisto' };
     navigate('/VideoCall', { state: userInformation });
 
   }
@@ -487,11 +486,11 @@ const Home = () => {
   function handleCallAnswer(answer: any) {
     if (answer === "join") {
       sendMessage("Accept Video Call");
-      const userInformation = { chatID: chatRoom, userName: senderName, currentUserID: state.currentUserID, theme: state.theme, themeID: state.themeID, token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3Byb250by5nZXRzdHJlYW0uaW8iLCJzdWIiOiJ1c2VyL1dlZGdlX0FudGlsbGVzIiwidXNlcl9pZCI6IldlZGdlX0FudGlsbGVzIiwidmFsaWRpdHlfaW5fc2Vjb25kcyI6NjA0ODAwLCJpYXQiOjE3MzIyMDU2ODAsImV4cCI6MTczMjgxMDQ4MH0.5v6JVKjD4-nP0Fn71KkuIy_iqdz6lwWnDzopcLFjids', userId: 'Wedge_Antilles' };
+      const userInformation = { chatID: chatRoom, userName: senderName, currentUserID: state.currentUserID, theme: state.theme, themeID: state.themeID, token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3Byb250by5nZXRzdHJlYW0uaW8iLCJzdWIiOiJ1c2VyL1ByaW5jZV9YaXpvciIsInVzZXJfaWQiOiJQcmluY2VfWGl6b3IiLCJ2YWxpZGl0eV9pbl9zZWNvbmRzIjo2MDQ4MDAsImlhdCI6MTczMzczOTYzOSwiZXhwIjoxNzM0MzQ0NDM5fQ.IATE2GoW1iw9-yt_AfucCwwDvcJlWZvA8AphOwEqj1Y', userId: 'Prince_Xizor' };
       navigate('/VideoCall', { state: userInformation });
 
       // Third User
-      const userInformation2 = { chatID: chatRoom, userName: userProfileData.name, currentUserID: state.currentUserID, theme: state.theme, themeID: state.themeID, token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3Byb250by5nZXRzdHJlYW0uaW8iLCJzdWIiOiJ1c2VyL0RhcnRoX1ZhZGVyIiwidXNlcl9pZCI6IkRhcnRoX1ZhZGVyIiwidmFsaWRpdHlfaW5fc2Vjb25kcyI6NjA0ODAwLCJpYXQiOjE3MzIyMDU2ODEsImV4cCI6MTczMjgxMDQ4MX0.RwN3woH0hi9KxfqP48TEiX3VrGoD85Hj2ZnpUFt4wBg', userId: 'Darth_Vader' };
+      // const userInformation2 = { chatID: chatRoom, userName: userProfileData.name, currentUserID: state.currentUserID, theme: state.theme, themeID: state.themeID, token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3Byb250by5nZXRzdHJlYW0uaW8iLCJzdWIiOiJ1c2VyL0RhcnRoX1ZhZGVyIiwidXNlcl9pZCI6IkRhcnRoX1ZhZGVyIiwidmFsaWRpdHlfaW5fc2Vjb25kcyI6NjA0ODAwLCJpYXQiOjE3MzIyMDU2ODEsImV4cCI6MTczMjgxMDQ4MX0.RwN3woH0hi9KxfqP48TEiX3VrGoD85Hj2ZnpUFt4wBg', userId: 'Darth_Vader' };
 
     } else if (answer === "decline") {
       // console.log("call end")
@@ -736,7 +735,7 @@ const Home = () => {
                     }
                   }
                   )}
-                  <ChatBox ownerChatID={value} friendChatID={friendValue} currentUserID={currentUserID} selectedChatData={selectedChatData} chatRoom={chatRoom} chatUserName={chatUserName} messages={messages} handleCallAnswer={handleCallAnswer} />
+                  <ChatBox ownerChatID={value} friendChatID={friendValue} currentUserID={currentUserID} messages={messages} handleCallAnswer={handleCallAnswer} />
                 </Paper>
               </CustomTabPanel>
             </Paper>

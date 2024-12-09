@@ -33,8 +33,6 @@ const VideoCall: React.FC<any> = () => {
 
 
     const apiKey = 'mmhfdzb5evj2';
-    // const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3Byb250by5nZXRzdHJlYW0uaW8iLCJzdWIiOiJ1c2VyL0RhcnRoX01hdWwiLCJ1c2VyX2lkIjoiRGFydGhfTWF1bCIsInZhbGlkaXR5X2luX3NlY29uZHMiOjYwNDgwMCwiaWF0IjoxNzMyMTE1NDgyLCJleHAiOjE3MzI3MjAyODJ9.pyoqrsgoN67yZdCKeBGL9-m-u6Trgg85eQcuwUpzWUE';
-    // const userId = 'Darth_Maul';
     const callId = chatID;
 
     const user: User = {
@@ -77,14 +75,6 @@ const VideoCall: React.FC<any> = () => {
     return (
         App()
     );
-
-    // return (
-    //     <StreamVideo client={client}>
-    //         <StreamCall call={call}>
-    //             <MyUILayout />
-    //         </StreamCall>
-    //     </StreamVideo>
-    // );
 }
 
 export default VideoCall;

@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, colors, Paper, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Paper, Typography } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import componentNames from '../General/Component';
 import Grid from '@mui/material/Grid2';

@@ -1,4 +1,3 @@
-import { Paper } from "@mui/material"
 import Grid from '@mui/material/Grid2';
 import MessageContainer from "./MessageContainer";
 import { useEffect, useState } from "react";
@@ -6,8 +5,7 @@ import axios from "axios";
 import names from "../General/Component";
 
 
-const ChatBox: React.FC<any> = ({ ownerChatID, friendChatID, currentUserID, selectedChatData, chatRoom, chatUserName, messages, handleCallAnswer }) => {
-    // const { chatID, name, chatRole, admin, member, lastDateTime, status, userID } = selectedChatData;
+const ChatBox: React.FC<any> = ({ ownerChatID, friendChatID, currentUserID, messages, handleCallAnswer }) => {
     const currentUserId = currentUserID;
     const [ownMessage, setOwnMessage] = useState<any>([]);
     const [friendMessage, setFriendMessage] = useState<any>([]);
@@ -45,14 +43,11 @@ const ChatBox: React.FC<any> = ({ ownerChatID, friendChatID, currentUserID, sele
     }, []);
 
     return <div>
-        {/* <Paper sx={{ width: 600, marginBottom: '-2%', marginLeft: '-2%', marginTop: '-5%', height: '380px', overflowY: 'auto', padding: 2, backgroundColor: 'transparent', boxShadow: 'none', '&::-webkit-scrollbar': { width: '8px' }, '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1', borderRadius: '10px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#888', borderRadius: '10px', '&:hover': { backgroundColor: '#555' } } }}> */}
-
-            <Grid container spacing={1} alignItems="center">
-                <Grid size={12} >
-                    <MessageContainer ownMessages={ownMessage} friendMessages={friendMessage} sender={sender} receiver={receiver} senderName={senderName} receiverName={receiverName} currentUser={currentUserId} ownerChatRoomID={ownerChatID} friendChatRoomID={friendChatID} messages={messages} chatUserName={chatUserName} handleCallAnswer={handleCallAnswer} />
-                </Grid>
+        <Grid container spacing={1} alignItems="center">
+            <Grid size={12} >
+                <MessageContainer ownMessages={ownMessage} friendMessages={friendMessage} senderName={senderName} messages={messages} handleCallAnswer={handleCallAnswer} />
             </Grid>
-        {/* </Paper> */}
+        </Grid>
     </div>
 }
 

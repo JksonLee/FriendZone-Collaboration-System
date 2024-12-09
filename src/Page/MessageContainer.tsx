@@ -13,7 +13,7 @@ interface MessageList {
     chatID: number;
 }
 
-const MessagesContainer: React.FC<any> = ({ ownMessages, friendMessages, sender, receiver, senderName, receiverName, currentUser, ownerChatRoomID, friendChatRoomID, messages, chatUserName, handleCallAnswer }) => {
+const MessagesContainer: React.FC<any> = ({ ownMessages, friendMessages, senderName, messages, handleCallAnswer }) => {
     const messagesEndRef = useRef<any>(null);
     const now = new Date();
     const currentDate = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
@@ -58,7 +58,6 @@ const MessagesContainer: React.FC<any> = ({ ownMessages, friendMessages, sender,
                             '&::-webkit-scrollbar': { width: '8px' }, '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1', borderRadius: '10px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#888', borderRadius: '10px', '&:hover': { backgroundColor: '#555' } }
                         }}>
                             <Typography variant="body1" gutterBottom sx={{ color: "black", textAlign: "right", marginLeft: 2, maxWidth: 300 }}>
-                                {/* {m.text} */}
                                 Waiting Accept...
                             </Typography>
                             <Typography variant="body1" gutterBottom sx={{ color: "black", textAlign: "left", marginLeft: 2, maxWidth: 300, fontSize: '10px' }}>

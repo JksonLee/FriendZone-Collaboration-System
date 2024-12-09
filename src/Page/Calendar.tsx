@@ -10,15 +10,12 @@ import { ScheduleXCalendar, useCalendarApp } from '@schedule-x/react';
 import { createViewWeek, createViewMonthGrid, createViewDay, createViewMonthAgenda, } from '@schedule-x/calendar'
 import '@schedule-x/theme-default/dist/calendar.css'
 import { createEventModalPlugin } from '@schedule-x/event-modal'
-import { createDragAndDropPlugin } from '@schedule-x/drag-and-drop'
 import { createEventsServicePlugin } from '@schedule-x/events-service'
 import '@schedule-x/theme-default/dist/index.css'
 import AddIcon from '@mui/icons-material/Add';
 import AddNewRemark from './AddNewRemark';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
-import ModifyRemark from './ModifyRemark';
 import EditNoteIcon from '@mui/icons-material/EditNote';
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
 interface UserInformation {
   currentUserID: number;
@@ -101,7 +98,6 @@ const Calendar = () => {
   function handleModify(remark: any) {
     const remarkDetail = { remarkID: remark.remarkID, inform: remark.inform, startDate: remark.startDate, startTime: remark.startTime, endDate: remark.endDate, endTime: remark.endTime, currentUserID: currentUserID, theme: theme, themeID: themeID }
     navigate('/ModifyRemark', { state: remarkDetail })
-
   }
 
   useEffect(() => {
@@ -173,45 +169,9 @@ const Calendar = () => {
                                     <Typography id="modal-modal-title" variant="h4" component="h2" sx={{ textAlign: 'center', marginBottom: 4, color: 'red' }}>
                                       Edit Specific Remark
                                     </Typography>
-                                    {/* <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                                      <Grid size={12} sx={{ color: 'black' }}>
-                                      </Grid>
-                                    </Typography> */}
                                   </Box>
                                 </Modal>
                               </Grid>
-                              {/* <Grid size={1}></Grid>
-                              <Grid size={1}>
-                                <Button onClick={handleOpenDelete} fullWidth sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: names.ButtonColor, color: 'whitesmoke' }}><DeleteForeverIcon fontSize="small" /></Button>
-                                <Modal open={openDelete} onClose={handleCloseDelete} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
-                                  <Box sx={modalStyle}>
-                                    <Typography id="modal-modal-title" variant="h4" component="h2" sx={{ textAlign: 'center', marginBottom: 4, color: 'red' }}>
-                                      Delete Remark From Your Calendar
-                                    </Typography>
-                                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                                      <Grid size={12} sx={{ color: 'black' }}>
-                                        <Typography>
-                                          The Remark Will Be <b>PERMENENTLY DELETE</b> And It Will Not Be Able To Recover Back, Are You Sure You Wanted To Delete Your Remark.
-                                        </Typography>
-                                      </Grid>
-
-                                      <br />
-                                      <br />
-
-                                      <Grid size={6}>
-                                        <Button onClick={deleteEvent} variant="contained" fullWidth sx={{ padding: '10px', backgroundColor: names.DeleteButton, marginBottom: '2%' }}>
-                                          Delete
-                                        </Button>
-                                      </Grid>
-                                      <Grid size={6}>
-                                        <Button onClick={handleCloseDelete} variant="contained" fullWidth sx={{ padding: '10px', backgroundColor: names.ButtonColor }}>
-                                          Cancel
-                                        </Button>
-                                      </Grid>
-                                    </Typography>
-                                  </Box>
-                                </Modal>
-                              </Grid> */}
                             </Grid>
                           </Paper>
                         </ListItem>
